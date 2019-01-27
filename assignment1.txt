@@ -1,0 +1,64 @@
+Intro R Assignment 1
+James Strange
+1/10/2019
+Download and read in the datafile �./quant_methods/data/tgpp.csv� from the class website. This dataset
+represents the vascular plant species richness that was collected from the Tallgrass Prairie Preserve from 10 x
+10 m quadrats. Species richness is simply the number of species that occur within a quadrat. Read the data
+into R, note this datafile has a header (i.e., it has column names) unlike the example we examined in class.
+data <- read.csv('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/data/tgpp.csv')
+1.) What are the names of the columns in this dataset?
+head(data)
+## plot year record_id corner scale richness easting northing slope ph
+## 1 205 1998 187 NA 100 60 727000 4080000 3 6.9
+## 2 205 1998 188 1 10 36 727000 4080000 3 6.9
+## 3 205 1998 189 2 10 34 727000 4080000 3 6.9
+## 4 205 1998 190 3 10 37 727000 4080000 3 6.9
+## 5 205 1998 191 4 10 33 727000 4080000 3 6.9
+## 6 205 1998 192 1 1 21 727000 4080000 3 6.9
+## yrsslb
+## 1 0.39
+## 2 0.39
+## 3 0.39
+## 4 0.39
+## 5 0.39
+## 6 0.39
+2.) How many rows and columns does this data file have?
+dim(data)
+## [1] 4080 11
+4080 rows and 11 columns
+3.) What kind of object is each data column?
+sapply(data, class)
+## plot year record_id corner scale richness easting
+## "integer" "integer" "integer" "integer" "numeric" "integer" "integer"
+## northing slope ph yrsslb
+## "integer" "integer" "numeric" "numeric"
+4.) What are the values of the the datafile for rows 1, 5, and 8 at columns 3, 7, and 10?
+data[c(1, 5, 8), c(3, 7, 10)]
+## record_id easting ph
+## 1 187 727000 6.9
+## 5 191 727000 6.9
+## 8 194 727000 6.9
+5.) Create a pdf of the relationship between the variables 
+“scale” and “richness”. Scale is the area in 
+square
+meters of the quadrat in which richness was recorded. Be sure 
+to label your axes clearly, and choose a color
+you find pleasing for the points. To get a list of available 
+stock colors use the function colors().
+plot(richness ~ scale, data=data, ylab = "richness", xlab = 
+"scale (m^2)", col = "royalblue")
+0 20 40 60 80 100
+0 20 40 60 80 100
+scale (m^2)
+richness
+pdf('/home/strangebb/quant_methods/graphs/tgpp_fig1.pdf')
+plot(richness ~ scale, data=data, ylab = "richness", xlab = 
+"scale (m^2)", col = "royalblue")
+dev.off()
+## pdf
+## 2
+6.) What happens to your plot when you set the plot argument 
+log equal to ‘xy’.
+plot(richness ~ scale, data=data, ylab = "richness", xlab = 
+"scale (m^2)", col = "royalblue", log='xy')
+## Warning in xy.coords(x, y,
