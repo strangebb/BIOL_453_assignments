@@ -1,0 +1,136 @@
+---
+title: "Assignment 3 Univariate Models"
+author: "James Strange"
+date: "January 31, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+trees = read.csv('./data/treedata_subset.csv')
+```
+
+1.) Develop and compare models for species cover for Acer rubrum and Abies fraseri. Compare p-values you observe using the function Anova() to those using summary(). For each species address the following additional questions:
+-How well does the exploratory model appear to explain cover?
+-Which explanatory variables are the most important?
+-Do model diagnostics indicate any problems with violations of OLS assumptions?
+-Are you able to explain variance in one species better than another, why might this be the case? 
+
+```{r, include=FALSE}
+trees$species == "Acer rubrum"
+rubrum <- trees[trees$species == "Acer rubrum",]
+trees$species == "Abies fraseri"
+fraseri <- trees[trees$species == "Abies fraseri",]
+library(ggplot2)
+library(gridExtra)
+library(scatterplot3d)
+library(MASS)
+```
+
+Elevation vs. Abundance (Both Species)
+```{r}
+plot(cover ~ elev, data = trees, type = 'n', 
+     xlab = 'Elevation (m)', ylab = 'Abundance')
+points(cover ~ elev, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ elev, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+
+```
+
+Stream Distribution vs. Abundance (Both Species)
+```{r}
+plot(cover ~ streamdist, data = trees, type = 'n', 
+     xlab = 'Distance to Nearest Stream (m)', ylab = 'Abundance')
+points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+
+```
+
+
+Heat Load Index vs. Abundance
+```{r}
+plot(cover ~ beers, data = trees, type = 'n', 
+     xlab = 'Head Load Index', ylab = 'Abundance')
+points(cover ~ beers, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ beers, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+```
+
+
+Site Water Potential vs. Abundance
+```{r}
+plot(cover ~ tci, data = trees, type = 'n', 
+     xlab = 'Site Water Potential', ylab = 'Abundance')
+points(cover ~ tci, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ tci, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+```
+
+
+```{r}
+ggplot(data = rubrum) + 
+  geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
+  labs(x = 'Plot Disturbance', y = 'Abundance', title = 'Acer rubrum Plot Disturbance')
+ggplot(data = fraseri) + 
+  geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
+  labs(x = 'Plot Disturbance', y = 'Abundance', title = 'Abies fraseri Plot Disturbance')
+
+```
+
+
+Stream Distribution vs. Abundance (Both Species)
+```{r}
+plot(cover ~ streamdist, data = trees, type = 'n', 
+     xlab = 'Distance to Nearest Stream (m)', ylab = 'Abundance')
+points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+
+```
+
+
+Heat Load Index vs. Abundance
+```{r}
+plot(cover ~ beers, data = trees, type = 'n', 
+     xlab = 'Head Load Index', ylab = 'Abundance')
+points(cover ~ beers, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ beers, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+```
+
+
+Site Water Potential vs. Abundance
+```{r}
+plot(cover ~ tci, data = trees, type = 'n', 
+     xlab = 'Site Water Potential', ylab = 'Abundance')
+points(cover ~ tci, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+points(cover ~ tci, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+
+```
+ 
