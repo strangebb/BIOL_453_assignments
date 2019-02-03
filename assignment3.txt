@@ -3,8 +3,9 @@ title: "Assignment 3 Univariate Models"
 author: "James Strange"
 date: "January 31, 2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -268,6 +269,21 @@ anova(fraseri_tci_mod)
 For the rubrum_tci model, a p-value of ~0.08 is given with ~0.4% variance explained. For the fraseri_tci model, a p-value of ~0.67 is given with ~0.4% variance explained, meaning neither model sufficiently explaines the coverage variance of their respective species. 
 
 
+DISTURBANCE MODELS
+
+```{r}
+rubrum_disturb_mod = lm(cover ~ disturb, data = rubrum)
+fraseri_disturb_mod = lm(cover ~ disturb, data = fraseri)
+summary(rubrum_disturb_mod)
+anova(rubrum_disturb_mod)
+summary(fraseri_disturb_mod)
+anova(fraseri_disturb_mod)
+```
+
+Statistical analysis of the Acer rubrum disturbance model does not reveal statistical significance for any of the disturbance treatments. However, the disturbance treatment of "VIRGIN" yields statistical significance for Abies fraseri abundance, with ~21% variance explained. 
+
+
+
 COMBINED MODELS
 
 ```{r}
@@ -339,8 +355,42 @@ plot(fraseri_elev_mod)
 
 Model diagnostics of the A. fraseri elevation model reveal that the assumptions of homoscadisticity, normal distribution, and lack of outliers are conserved.
 
-**Although the Acer rubrum model for all variables and the model for only elev, beers, and streamdist are able to achieve statistical relevance, their relatively small % of variance explained means that they are not able to adequately account for variance in the abundance cover variable. However, the statistical significance and ~50% of variance explained for the Abies fraseri elevation model means that it is more able to account for variance in the A. fraseri abundance (cover) variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that only one of the variables (plot elevation) is able to best explain the variance in A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes.
+**Although the Acer rubrum model for all variables and the model for only elev, beers, and streamdist are able to achieve statistical relevance, their relatively small % of variance explained means that they are not able to adequately account for variance in the abundance cover variable. However, the statistical significance and ~50% of variance explained for the Abies fraseri elevation model means that it is more able to account for variance in the A. fraseri abundance (cover) variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that only one of the variables (plot elevation) is able to best explain the variance in A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes. 
 
+
+
+
+2.) Compare your qualatitive assessment of which variables were most important in each model. Does it appear that changing the error distribution changed the results much? In what ways?
+
+```{r}
+rubrum_poi = glm(cover ~ tci + elev + beers + streamdist + disturb, data = rubrum, 
+           family='poisson')
+pseudo_r2 = function(glm_mod) {
+                1 -  glm_mod$deviance / glm_mod$null.deviance
+            }   
+pseudo_r2(rubrum_poi)
+rubrum_poi_ebs = glm(cover ~ elev + beers + streamdist, data = rubrum, 
+           family='poisson')
+pseudo_r2(rubrum_poi_ebs)
+```
+
+For Acer rubrum, changing the error distribution to poisson does not appear to change the apparent variance explained for either the A. rubrum main model of all variables or the A. rubrum ebs model of elev, beers, and streamdist alone. 
+
+
+```{r}
+fraseri_poi = glm(cover ~ tci + elev + beers + streamdist + disturb, data = fraseri, 
+           family='poisson')
+pseudo_r2 = function(glm_mod) {
+                1 -  glm_mod$deviance / glm_mod$null.deviance
+            }   
+pseudo_r2(fraseri_poi)
+fraseri_poi_elev = glm(cover ~ elev, data = fraseri, 
+           family='poisson')
+pseudo_r2(fraseri_poi_elev)
+```
+
+
+For Abies fraseri, changing the error distribution resulted in a higher R-squared value and more variance explained for a fraseri model including all variables, but did not significantly increase the R-squared value and variance explained for a fraseri model accounting for elevation variable alone. 
 
 
 
