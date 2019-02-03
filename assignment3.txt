@@ -394,5 +394,14 @@ For Abies fraseri, changing the error distribution resulted in a higher R-square
 
 
 
+3. Provide a plain English summary (i.e., no statistics) of what you have found and what conclusions we can take away from your analysis?
+
+*Acer rubrum*
+Analysis of the models for A. rubrum abundance did not indicate that any of the variables of elevation, stream distance, site water potential, heat load index, or plot disturbance were able to sufficiently account for variance of species abundance. Since A. rubrum is a habitat generalist, it is not limited by a narrow range of environmental factors but rather proliferates under a wide set of conditions. 
+
+*Abies fraseri*
+However, the analysis of the models for Abies fraseri abundance indicated that the variables of plot elevation and plot disturbance (spefically the "VIRGIN" treatment) were able to account for variance of A. fraseri abundance. As a result, the data appear to indicate that A. fraseri prefers undisturbed, high-elevation plots in order to proliferate. This is consistent with the fact that A. fraseri is a habitat specialist, as it requires this specific set of conditions in order to proliferate and compete with Acer rubrum. 
+
+
 
 
