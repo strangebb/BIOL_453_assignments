@@ -2,7 +2,9 @@
 title: "Assignment 3 Univariate Models"
 author: "James Strange"
 date: "January 31, 2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 trees = read.csv('./data/treedata_subset.csv')
 ```
 
-1.) Develop and compare models for species cover for Acer rubrum and Abies fraseri. Compare p-values you observe using the function Anova() to those using summary(). For each species address the following additional questions:
+1.) Develop and compare models for species cover for Acer rubrum and Abies fraseri. Compare p-values you observe using the function anova() to those using summary(). For each species address the following additional questions:
 -How well does the exploratory model appear to explain cover?
 -Which explanatory variables are the most important?
 -Do model diagnostics indicate any problems with violations of OLS assumptions?
@@ -30,31 +32,125 @@ library(scatterplot3d)
 library(MASS)
 ```
 
-Elevation vs. Abundance (Both Species)
+
+ELEVATION MODELS
+
+
 ```{r}
-plot(cover ~ elev, data = trees, type = 'n', 
-     xlab = 'Elevation (m)', ylab = 'Abundance')
-points(cover ~ elev, data = trees, subset = species == "Acer rubrum",
-       pch = 1, col = 'red')
-points(cover ~ elev, data = trees, subset = species == "Abies fraseri",
-       pch = 2, col = 'blue')
-legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
-       pch = c(1, 2), bty = 'n')
+rubrum_elev_mod = lm(cover ~ elev, data = rubrum)
+fraseri_elev_mod = lm(cover ~ elev, data = fraseri)
+par(mfrow=c(1,2))
+plot(cover ~ elev, data = rubrum, xlab = 'Plot Elevation (m)',ylab = '% Abundance', main = 'Acer rubrum')
+abline(rubrum_elev_mod)
+
+plot(cover ~ elev, data = fraseri, 
+     xlab = 'Plot Elevation (m)', ylab = '% Abundance', main = 'Abies fraseri')
+abline(fraseri_elev_mod)
 
 ```
 
-Stream Distribution vs. Abundance (Both Species)
 ```{r}
+plot(cover ~ elev, data = trees, type = 'n', 
+     xlab = 'Plot Elevation (m)', ylab = 'Abundance')
+points(cover ~ elev, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+lines(lowess(trees$elev[trees$species == 'Acer rubrum'],
+             trees$cover[trees$species == 'Acer rubrum']),
+      lty = 1, col = 'red')
+points(cover ~ elev, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+lines(lowess(trees$elev[trees$species == 'Abies fraseri'],
+             trees$cover[trees$species == 'Abies fraseri']),
+      lty = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), lty = c(1, 2), bty = 'n')
+
+ggplot(data = rubrum, mapping = aes(x = elev, y = cover)) + 
+  labs(title = 'Acer rubrum Plot Elevation (m) vs. Abundance', x = 'Plot Elevation (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "red") +
+    theme_classic() 
+ggplot(data = fraseri, mapping = aes(x = elev, y = cover)) + 
+  labs(title = 'Abies fraseri Plot Elevation (m) vs. Abundance', x = 'Plot Elevation (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "blue") +
+    theme_classic()
+
+```
+
+```{r}
+summary(rubrum_elev_mod)
+anova(rubrum_elev_mod)
+```
+
+Both tests gives similar p-values with statistical significance but only ~1% variance explained  
+
+```{r}
+summary(fraseri_elev_mod)
+anova(fraseri_elev_mod)
+```
+
+Both tests give similar p-values with statistical significance and with ~48% variance explained. 
+
+Thus, the fraseri_elev model is able to better explain fraseri abundance while the rubrum_elev model is not able to explain rubrum abundance to the same extent. 
+
+
+
+
+
+STREAMDIST MODELS
+
+
+```{r}
+rubrum_streamdist_mod = lm(cover ~ streamdist, data = rubrum)
+fraseri_streamdist_mod = lm(cover ~ streamdist, data = fraseri)
 plot(cover ~ streamdist, data = trees, type = 'n', 
      xlab = 'Distance to Nearest Stream (m)', ylab = 'Abundance')
 points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
        pch = 1, col = 'red')
+abline(rubrum_streamdist_mod)
 points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
        pch = 2, col = 'blue')
+abline(fraseri_streamdist_mod)
 legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
        pch = c(1, 2), bty = 'n')
 
 ```
+
+```{r}
+plot(cover ~ streamdist, data = trees, type = 'n', 
+     xlab = 'Nearest Stream Distance (m)', ylab = 'Abundance')
+points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+lines(lowess(trees$streamdist[trees$species == 'Acer rubrum'],
+             trees$cover[trees$species == 'Acer rubrum']),
+      lty = 1, col = 'red')
+points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+lines(lowess(trees$streamdist[trees$species == 'Abies fraseri'],
+             trees$cover[trees$species == 'Abies fraseri']),
+      lty = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), lty = c(1, 2), bty = 'n')
+
+ggplot(data = rubrum, mapping = aes(x = streamdist, y = cover)) + 
+  labs(title = 'Acer rubrum Stream Distance (m) vs. Abundance', x = 'Nearest Stream Distance (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "red") +
+    theme_classic() 
+ggplot(data = fraseri, mapping = aes(x = streamdist, y = cover)) + 
+  labs(title = 'Abies fraseri Stream Distance (m) vs. Abundance', x = 'Nearest Stream Distance (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "blue") +
+    theme_classic()
+
+```
+
+
 
 
 Heat Load Index vs. Abundance
@@ -68,6 +164,8 @@ points(cover ~ beers, data = trees, subset = species == "Abies fraseri",
 legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
        pch = c(1, 2), bty = 'n')
 ```
+
+
 
 
 Site Water Potential vs. Abundance
@@ -94,43 +192,47 @@ ggplot(data = fraseri) +
 ```
 
 
-Stream Distribution vs. Abundance (Both Species)
-```{r}
-plot(cover ~ streamdist, data = trees, type = 'n', 
-     xlab = 'Distance to Nearest Stream (m)', ylab = 'Abundance')
-points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
-       pch = 1, col = 'red')
-points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
-       pch = 2, col = 'blue')
-legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
-       pch = c(1, 2), bty = 'n')
 
+*Initial graphical analysis of the data yields several observations and visible trends. First, the graph depicting the relationship between plot elevation and species abundance reveals that the plots up until rougly 1500 meters elevation are mostly inhabited by Acer rubrum, while the plots above 1500 meters elevation are mostly inhabited by Abies fraseri. Second, the boxblots depicting the relationship between the categorical variable "disturbance" and the level of species abundance in each plot reveals that while Acer rubrum has an abundance of roughly ~50% in each disturbance treatment, Abies fraseri shows a much more varied distribution of abundance with the highest occurring in the Virgin disturbance treatment. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DISTURBANCE MODELS
+
+```{r, include = FALSE}
+rubrum$disturb == "VIRGIN"
+rubrum1 <- rubrum[rubrum$disturb == "VIRGIN",]
+fraseri$disturb == "VIRGIN"
+fraseri1 <- fraseri[fraseri$disturb == "VIRGIN",]
+```
+
+```{r}
+rubrum_disturb_mod = lm(cover ~ disturb, data = rubrum)
+fraseri_disturb_mod = lm(cover ~ disturb, data = fraseri)
+par(mfrow=c(1,2))
+ggplot(data = rubrum) + 
+  geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
+  labs(x = 'Plot Disturbance', y = 'Abundance', title = 'Acer rubrum Plot Disturbance')
+abline(rubrum_disturb_mod)
+ggplot(data = fraseri) + 
+  geom_boxplot(mapping = aes(x = disturb, y = cover)) +  
+  labs(x = 'Plot Disturbance', y = 'Abundance', title = 'Abies fraseri Plot Disturbance')
 ```
 
 
-Heat Load Index vs. Abundance
-```{r}
-plot(cover ~ beers, data = trees, type = 'n', 
-     xlab = 'Head Load Index', ylab = 'Abundance')
-points(cover ~ beers, data = trees, subset = species == "Acer rubrum",
-       pch = 1, col = 'red')
-points(cover ~ beers, data = trees, subset = species == "Abies fraseri",
-       pch = 2, col = 'blue')
-legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
-       pch = c(1, 2), bty = 'n')
-```
 
 
-Site Water Potential vs. Abundance
-```{r}
-plot(cover ~ tci, data = trees, type = 'n', 
-     xlab = 'Site Water Potential', ylab = 'Abundance')
-points(cover ~ tci, data = trees, subset = species == "Acer rubrum",
-       pch = 1, col = 'red')
-points(cover ~ tci, data = trees, subset = species == "Abies fraseri",
-       pch = 2, col = 'blue')
-legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
-       pch = c(1, 2), bty = 'n')
 
-```
- 
+
