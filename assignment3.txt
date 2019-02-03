@@ -403,5 +403,20 @@ Analysis of the models for A. rubrum abundance did not indicate that any of the 
 However, the analysis of the models for Abies fraseri abundance indicated that the variables of plot elevation and plot disturbance (spefically the "VIRGIN" treatment) were able to account for variance of A. fraseri abundance. As a result, the data appear to indicate that A. fraseri prefers undisturbed, high-elevation plots in order to proliferate. This is consistent with the fact that A. fraseri is a habitat specialist, as it requires this specific set of conditions in order to proliferate and compete with Acer rubrum. 
 
 
+4. (Optional) Examine the behavior of the function stepAIC() using the exploratory models developed above. This is a very simple and not very robust machine learning stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
+
+*Acer rubrum*
+```{r}
+stepAIC(rubrum_main_mod)
+```
+
+
+*Abies fraseri*
+```{r}
+stepAIC(fraseri_main_mod)
+```
+
+
+
 
 
