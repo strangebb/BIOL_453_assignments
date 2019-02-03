@@ -3,9 +3,9 @@ title: "Assignment 3 Univariate Models"
 author: "James Strange"
 date: "January 31, 2019"
 output:
-  html_document: default
-  pdf_document: default
   word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +22,7 @@ trees = read.csv('./data/treedata_subset.csv')
 -Do model diagnostics indicate any problems with violations of OLS assumptions?
 -Are you able to explain variance in one species better than another, why might this be the case? 
 
-*Initial graphical analysis of the data yields several observations and visible trends. First, the graph depicting the relationship between plot elevation and species abundance reveals that the plots up until rougly 1500 meters elevation are mostly inhabited by Acer rubrum, while the plots above 1500 meters elevation are mostly inhabited by Abies fraseri. Second, the boxblots depicting the relationship between the categorical variable "disturbance" and the level of species abundance in each plot reveals that while Acer rubrum has an abundance of roughly ~50% in each disturbance treatment, Abies fraseri shows a much more varied distribution of abundance with the highest occurring in the Virgin disturbance treatment.
+Initial graphical analysis of the data yields several observations and visible trends. First, the graph depicting the relationship between plot elevation and species abundance reveals that the plots up until rougly 1500 meters elevation are mostly inhabited by Acer rubrum, while the plots above 1500 meters elevation are mostly inhabited by Abies fraseri. Second, the boxblots depicting the relationship between the categorical variable "disturbance" and the level of species abundance in each plot reveals that while Acer rubrum has an abundance of roughly ~50% in each disturbance treatment, Abies fraseri shows a much more varied distribution of abundance with the highest occurring in the Virgin disturbance treatment.
 
 ```{r, include=FALSE}
 trees$species == "Acer rubrum"
@@ -355,7 +355,7 @@ plot(fraseri_elev_mod)
 
 Model diagnostics of the A. fraseri elevation model reveal that the assumptions of homoscadisticity, normal distribution, and lack of outliers are conserved.
 
-**Although the Acer rubrum model for all variables and the model for only elev, beers, and streamdist are able to achieve statistical relevance, their relatively small % of variance explained means that they are not able to adequately account for variance in the abundance cover variable. However, the statistical significance and ~50% of variance explained for the Abies fraseri elevation model means that it is more able to account for variance in the A. fraseri abundance (cover) variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that only one of the variables (plot elevation) is able to best explain the variance in A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes. 
+Although the Acer rubrum model for all variables and the model for only elev, beers, and streamdist are able to achieve statistical relevance, their relatively small % of variance explained means that they are not able to adequately account for variance in the abundance cover variable. However, the statistical significance and ~50% of variance explained for the Abies fraseri elevation model means that it is more able to account for variance in the A. fraseri abundance (cover) variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that only one of the variables (plot elevation) is able to best explain the variance in A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes. 
 
 
 
@@ -403,6 +403,7 @@ Analysis of the models for A. rubrum abundance did not indicate that any of the 
 However, the analysis of the models for Abies fraseri abundance indicated that the variables of plot elevation and plot disturbance (specifically the "VIRGIN" treatment) were able to account for variance of A. fraseri abundance. As a result, the data appear to indicate that A. fraseri prefers undisturbed, high-elevation plots in order to proliferate. This is consistent with the fact that A. fraseri is a habitat specialist, as it requires this specific set of conditions in order to proliferate and compete with Acer rubrum. 
 
 
+
 4. (Optional) Examine the behavior of the function stepAIC() using the exploratory models developed above. This is a very simple and not very robust machine learning stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
 
 *Acer rubrum*
@@ -415,6 +416,7 @@ stepAIC(rubrum_main_mod)
 ```{r}
 stepAIC(fraseri_main_mod)
 ```
+
 
 
 
