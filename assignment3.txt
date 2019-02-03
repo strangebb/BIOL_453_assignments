@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-trees = read.csv('./data/treedata_subset.csv')
+trees = read.csv('https://github.com/dmcglinn/quant_methods/blob/gh-pages/data/treedata_subset.csv')
 ```
 
 1.) Develop and compare models for species cover for Acer rubrum and Abies fraseri. Compare p-values you observe using the function anova() to those using summary(). For each species address the following additional questions:
