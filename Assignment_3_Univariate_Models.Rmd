@@ -1,0 +1,509 @@
+---
+title: "Assignment 3 Univariate Models"
+author: "James Strange"
+date: "January 31, 2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+trees = read.csv('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/data/treedata_subset.csv')
+trees$species == "Acer rubrum"
+rubrum <- trees[trees$species == "Acer rubrum",]
+trees$species == "Abies fraseri"
+fraseri <- trees[trees$species == "Abies fraseri",]
+library(ggplot2)
+library(gridExtra)
+library(scatterplot3d)
+library(MASS)
+```
+
+
+
+
+1.) Develop and compare models for species cover for Acer rubrum and Abies fraseri. Compare p-values you observe using the function anova() to those using summary(). For each species address the following additional questions:
+-How well does the exploratory model appear to explain cover?
+-Which explanatory variables are the most important?
+-Do model diagnostics indicate any problems with violations of OLS assumptions?
+-Are you able to explain variance in one species better than another, why might this be the case? 
+
+
+Initial graphical analysis of the data yields several observations and visible trends. First, the graph depicting the relationship between plot elevation and species abundance reveals that the plots up until rougly 1500 meters elevation are mostly inhabited by Acer rubrum, while the plots above 1500 meters elevation are mostly inhabited by Abies fraseri. Second, the boxblots depicting the relationship between the categorical variable "disturbance" and the level of species abundance in each plot reveals that while Acer rubrum has an abundance of roughly ~50% in each disturbance treatment, Abies fraseri shows a much more varied distribution of abundance with the highest occurring in the "VIRGIN" disturbance treatment.
+
+
+
+*SINGLE VARIABLE MODELS*
+
+ELEVATION MODELS
+
+
+```{r}
+#Acer rubrum elevation model
+rubrum_elev_mod = lm(cover ~ elev, data = rubrum)
+#Abies fraseri elevation model
+fraseri_elev_mod = lm(cover ~ elev, data = fraseri)
+par(mfrow=c(1,2))
+plot(cover ~ elev, data = rubrum, xlab = 'Plot Elevation (m)',ylab = 'Abundance', main = 'Acer rubrum')
+abline(rubrum_elev_mod)
+
+plot(cover ~ elev, data = fraseri, 
+     xlab = 'Plot Elevation (m)', ylab = 'Abundance', main = 'Abies fraseri')
+abline(fraseri_elev_mod)
+```
+
+Above graph indicates potential corrlation between elevation and abundance of Abies fraseri, but not clear correlation for Acer rubrum.
+
+```{r}
+plot(cover ~ elev, data = trees, type = 'n', 
+     xlab = 'Plot Elevation (m)', ylab = 'Abundance', main = 'Elevation vs. Abundance')
+points(cover ~ elev, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+lines(lowess(trees$elev[trees$species == 'Acer rubrum'],
+             trees$cover[trees$species == 'Acer rubrum']),
+      lty = 1, col = 'red')
+points(cover ~ elev, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+lines(lowess(trees$elev[trees$species == 'Abies fraseri'],
+             trees$cover[trees$species == 'Abies fraseri']),
+      lty = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), lty = c(1, 2), bty = 'n')
+
+ggplot(data = rubrum, mapping = aes(x = elev, y = cover)) + 
+  labs(title = 'Acer rubrum Plot Elevation (m) vs. Abundance', x = 'Plot Elevation (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "red") +
+    theme_classic() 
+ggplot(data = fraseri, mapping = aes(x = elev, y = cover)) + 
+  labs(title = 'Abies fraseri Plot Elevation (m) vs. Abundance', x = 'Plot Elevation (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "blue") +
+    theme_classic()
+
+```
+
+```{r}
+#Statistics for rubrum elevation model
+summary(rubrum_elev_mod)
+anova(rubrum_elev_mod)
+```
+
+Both tests gives similar p-values with statistical significance but only ~1% variance explained  
+
+```{r}
+#Statistics for fraseri elevation model
+summary(fraseri_elev_mod)
+anova(fraseri_elev_mod)
+```
+
+Both tests give similar p-values with statistical significance and with ~48% variance explained. 
+
+Thus, the fraseri_elev model is able to better explain fraseri abundance while the rubrum_elev model is not able to explain rubrum abundance to the same extent. The variable of elevation is a better predictor of Abies fraseri abundance.  
+
+
+STREAMDIST MODELS
+
+
+```{r}
+#Acer rubrum stream distance model
+rubrum_streamdist_mod = lm(cover ~ streamdist, data = rubrum)
+#Abies fraseri stream distance model
+fraseri_streamdist_mod = lm(cover ~ streamdist, data = fraseri)
+plot(cover ~ streamdist, data = trees, type = 'n', 
+     xlab = 'Distance to Nearest Stream (m)', ylab = 'Abundance', main = 'Stream Distance vs. Abundance')
+points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+abline(rubrum_streamdist_mod)
+points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+abline(fraseri_streamdist_mod)
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+
+```
+
+
+```{r}
+plot(cover ~ streamdist, data = trees, type = 'n', 
+     xlab = 'Nearest Stream Distance (m)', ylab = 'Abundance')
+points(cover ~ streamdist, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+lines(lowess(trees$streamdist[trees$species == 'Acer rubrum'],
+             trees$cover[trees$species == 'Acer rubrum']),
+      lty = 1, col = 'red')
+points(cover ~ streamdist, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+lines(lowess(trees$streamdist[trees$species == 'Abies fraseri'],
+             trees$cover[trees$species == 'Abies fraseri']),
+      lty = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), lty = c(1, 2), bty = 'n')
+
+ggplot(data = rubrum, mapping = aes(x = streamdist, y = cover)) + 
+  labs(title = 'Acer rubrum Stream Distance (m) vs. Abundance', x = 'Nearest Stream Distance (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "red") +
+    theme_classic() 
+ggplot(data = fraseri, mapping = aes(x = streamdist, y = cover)) + 
+  labs(title = 'Abies fraseri Stream Distance (m) vs. Abundance', x = 'Nearest Stream Distance (m)', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "blue") +
+    theme_classic()
+
+```
+
+
+```{r}
+#Statistics for rubrum stream distance model 
+summary(rubrum_streamdist_mod)
+anova(rubrum_streamdist_mod)
+```
+
+```{r}
+#Statistics for fraseri stream distance model
+summary(fraseri_streamdist_mod)
+anova(fraseri_streamdist_mod)
+```
+
+
+For the rubrum_streamdist model, the summary and Anova functions indicate a p-value of ~0.01 but with only ~0.8% variance explained. Similarly, the fraseri_streamdist model gives a p-value of 0.04 with only ~9% variance explained. Therefore, the models accounting for the streamdist variable alone do not sufficiently explain variance of abundance for either species.
+
+
+
+HEAT LOAD INDEX MODELS
+
+```{r}
+#Acer rubrum heat load index model
+rubrum_beers_mod = lm(cover ~ beers, data = rubrum)
+#Abies fraseri heat load index model
+fraseri_beers_mod = lm(cover ~ beers, data = fraseri)
+plot(cover ~ beers, data = trees, type = 'n', 
+     xlab = 'Heat Load Index', ylab = 'Abundance', main = 'Heat Load Index vs. Abundance')
+points(cover ~ beers, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+abline(rubrum_beers_mod)
+points(cover ~ beers, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+abline(fraseri_beers_mod)
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+```
+
+```{r}
+plot(cover ~ beers, data = trees, type = 'n', 
+     xlab = 'Heat Load Index', ylab = 'Abundance')
+points(cover ~ beers, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+lines(lowess(trees$beers[trees$species == 'Acer rubrum'],
+             trees$cover[trees$species == 'Acer rubrum']),
+      lty = 1, col = 'red')
+points(cover ~ beers, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+lines(lowess(trees$beers[trees$species == 'Abies fraseri'],
+             trees$cover[trees$species == 'Abies fraseri']),
+      lty = 2, col = 'blue')
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), lty = c(1, 2), bty = 'n')
+
+ggplot(data = rubrum, mapping = aes(x = beers, y = cover)) + 
+  labs(title = 'Acer rubrum Heat Load Index vs. Abundance', x = 'Heat Load Index', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "red") +
+    theme_classic() 
+ggplot(data = fraseri, mapping = aes(x = beers, y = cover)) + 
+  labs(title = 'Abies fraseri Heat Load Index vs. Abundance', x = 'Heat Load Index', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "blue") +
+    theme_classic()
+
+```
+
+```{r}
+#Statistics for rubrum beers model
+summary(rubrum_beers_mod)
+anova(rubrum_beers_mod)
+#Statistics for fraseri beers model
+summary(fraseri_beers_mod)
+anova(fraseri_beers_mod)
+```
+
+For the rubrum_beers model, a p-value of ~0.001 is given with only ~1.4% analysis explained. For the fraseri_beers model, a p-value of ~0.23 is given with only ~3% of variance explained. Thus, this model does not sufficiently account for coverage variance in either species. 
+
+
+
+SITE WATER POTENTIAL MODELS
+
+```{r}
+#Acer rubrum water potential model
+rubrum_tci_mod = lm(cover ~ tci, data = rubrum)
+#Abies fraseri water potential model
+fraseri_tci_mod = lm(cover ~ tci, data = fraseri)
+plot(cover ~ tci, data = trees, type = 'n', 
+     xlab = 'Site Water Potential', ylab = 'Abundance', main = 'Site Water Potential vs. Abundance')
+points(cover ~ tci, data = trees, subset = species == "Acer rubrum",
+       pch = 1, col = 'red')
+abline(rubrum_tci_mod)
+points(cover ~ tci, data = trees, subset = species == "Abies fraseri",
+       pch = 2, col = 'blue')
+abline(fraseri_tci_mod)
+legend('topleft', c('Acer rubrum', 'Abies fraseri'), col = c('red', 'blue'), 
+       pch = c(1, 2), bty = 'n')
+ggplot(data = rubrum, mapping = aes(x = tci, y = cover)) + 
+  labs(title = 'Acer rubrum Water Potential vs. Abundance', x = 'Water Potential', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "red") +
+    theme_classic() 
+ggplot(data = fraseri, mapping = aes(x = tci, y = cover)) + 
+  labs(title = 'Abies fraseri Water Potential vs. Abundance', x = 'Water Potential', y = "Abundance") + 
+  geom_point(mapping = aes(color = species)) +
+    geom_smooth(mapping = aes(linetype = species, color = species), method = 'loess') +
+    scale_color_manual(values = "blue") +
+    theme_classic()
+```
+
+```{r}
+#Stats for rubrum tci model
+summary(rubrum_tci_mod)
+anova(rubrum_tci_mod)
+#Stats for fraseri tci mod
+summary(fraseri_tci_mod)
+anova(fraseri_tci_mod)
+```
+
+
+For the rubrum_tci model, a p-value of ~0.08 is given with ~0.4% variance explained. For the fraseri_tci model, a p-value of ~0.67 is given with ~0.4% variance explained, meaning neither model sufficiently explaines the coverage variance for their respective species. 
+
+
+DISTURBANCE MODELS
+
+```{r}
+rubrum_disturb_mod = lm(cover ~ disturb, data = rubrum)
+fraseri_disturb_mod = lm(cover ~ disturb, data = fraseri)
+#Stats for rubrum disturbance model
+summary(rubrum_disturb_mod)
+anova(rubrum_disturb_mod)
+#Stats for rubrum disturbance model
+summary(fraseri_disturb_mod)
+anova(fraseri_disturb_mod)
+```
+
+Statistical analysis of the Acer rubrum disturbance model does not indicate statistical significance for any of the disturbance treatments. However, the disturbance treatment of "VIRGIN" yields statistical significance for Abies fraseri abundance, with ~21% variance explained. 
+
+
+
+
+COMBINED MODELS WITH ALL VARIABLES
+
+```{r}
+rubrum_main_mod = lm(cover ~ elev + beers + tci + streamdist + disturb, data = rubrum)
+#Stats for rubrum_main_mod
+summary(rubrum_main_mod)
+anova(rubrum_main_mod)
+```
+
+With a combined Acer rubrum model, the anova test suggests that elev, beers, tci, and streamdist are statistically significant, but with only ~4% variance explained. 
+
+ 
+```{r}
+fraseri_main_mod = lm(cover ~ elev + beers + tci + streamdist + disturb, data = fraseri)
+#Stats for fraseri_main_mod
+summary(fraseri_main_mod)
+anova(fraseri_main_mod)
+```
+
+The Abies fraseri combined model shows a different story. Here, the elev variable is statistically significant with ~58% variance explained. This model yas yielded the highest % of variance explained so far. 
+
+
+
+
+COMBINED MODELS ACCOUNTING FOR VARIABLE INTERACTION
+
+
+*VARIABLE INTERACTIONS*
+
+```{r}
+#Analysis of potential interactions within Acer rubrum data
+par(mfrow=c(6, 6))
+pairs(cover ~ elev + tci + streamdist + disturb + beers, subset = species == "Acer rubrum", data = trees)
+pairs(rubrum, lower.panel = panel.smooth, upper.panel = panel.cor)
+```
+
+Analysis of potential variable interactions within the Acer rubrum dataset does not reveal any significantly correlated variables.  
+
+
+```{r}
+#Analysis of potential interactions within Abies fraseri data
+par(mfrow=c(6, 6))
+pairs(cover ~ elev + tci + streamdist + disturb + beers, subset = species == "Abies fraseri", data = trees)
+pairs(fraseri, lower.panel = panel.smooth, upper.panel = panel.cor)
+```
+
+This pairs chart for Abies fraseri indicates that cover is most likely correlated to the variables of elevation and disturbance. In addition, potential correlation is indicated between elevation and streamdist, 
+
+
+```{r}
+#Abies fraseri interaction model
+fraseri_interaction_mod = lm(cover ~ elev + streamdist + disturb + beers + elev*streamdist + tci*beers, data = fraseri)
+summary(fraseri_interaction_mod)
+anova(fraseri_interaction_mod)
+```
+
+This yields a statistically significant model with ~60% variance explained. 
+
+
+
+
+
+*MODEL DIAGNOSTICS*
+
+
+```{r}
+#AIC Values for the rubrum models
+AIC(rubrum_elev_mod)
+AIC(rubrum_beers_mod)
+AIC(rubrum_streamdist_mod)
+AIC(rubrum_tci_mod)
+AIC(rubrum_disturb_mod)
+AIC(rubrum_main_mod)
+```
+
+
+Of the models listed above, the Acer rubrum combined main model yields the lowest AIC value. 
+
+
+```{r}
+#Diagnostics for rubrum main model
+par(mfrow = c(2,2))
+plot(rubrum_main_mod)
+```
+
+For the Acer rubrum model, the diagnostics suggest that the assumption of homoscadisticity does not hold, outliers are present, and the assumption of normal distribution is preserved. 
+
+
+
+```{r}
+#AIC Values for the fraseri models
+AIC(fraseri_elev_mod)
+AIC(fraseri_beers_mod)
+AIC(fraseri_streamdist_mod)
+AIC(fraseri_tci_mod)
+AIC(fraseri_disturb_mod)
+AIC(fraseri_main_mod)
+AIC(fraseri_interaction_mod)
+```
+
+Here, the Abies fraseri model accounting for the elevation variable alone yields the lowest AIC value.
+
+
+
+```{r}
+par(mfrow = c(2,2))
+plot(fraseri_elev_mod)
+```
+
+Model diagnostics of the A. fraseri elevation model reveal that the assumptions of homoscadisticity, normal distribution, and lack of outliers are conserved.
+
+*Acer rubrum* For A. rubrum, none of the variables alone appear to sufficiently explain variation of abundance.
+*Abies fraseri* For A. fraseri, elevation appears to be the most important in terms of explaining variation of abundance. 
+
+Overall, variance is better explained for Abies fraseri than for Acer rubrum. Although the Acer rubrum model for all variables and the ebs model for only elev, beers, and streamdist are able to achieve statistical significance for contained variables, their relatively small % of variance explained means that they are not able to adequately account for variance of the abundance coverage variable. However, the achieved statistical significance and ~50% of variance explained for the Abies fraseri elevation model means that it is better able to account for variance of the A. fraseri abundance coverage variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that the variables are able to better explain the variance of A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes. 
+
+
+
+
+2.) Re-examine your solutions to the question above but from the perspective of a General Linear Model (GLM) with a Poisson error term (rather than a Gaussian one as in OLS). Compare your qualatitive assessment of which variables were most important in each model. Does it appear that changing the error distribution changed the results much? In what ways?
+
+```{r}
+rubrum_poi = glm(cover ~ tci + elev + beers + streamdist + disturb, data = rubrum, 
+           family='poisson')
+pseudo_r2 = function(glm_mod) {
+                1 -  glm_mod$deviance / glm_mod$null.deviance
+            }   
+pseudo_r2(rubrum_poi)
+```
+
+For Acer rubrum, changing the error distribution to poisson does not appear to change the apparent variance explained (~4%).
+
+
+```{r}
+fraseri_poi = glm(cover ~ tci + elev + beers + streamdist + disturb, data = fraseri, 
+           family='poisson')
+pseudo_r2 = function(glm_mod) {
+                1 -  glm_mod$deviance / glm_mod$null.deviance
+            }   
+pseudo_r2(fraseri_poi)
+fraseri_poi_elev = glm(cover ~ elev, data = fraseri, 
+           family='poisson')
+pseudo_r2(fraseri_poi_elev)
+```
+
+
+For Abies fraseri main model, changing the error distribution resulted in a higher R-squared value and more variance explained for a fraseri model including all variables, but did not significantly increase the R-squared value and variance explained for a fraseri model accounting for elevation variable alone (~61% and ~46% variance explained).
+
+
+
+3. Provide a plain English summary (i.e., no statistics) of what you have found and what conclusions we can take away from your analysis?
+
+*Acer rubrum*
+Analysis of the models for A. rubrum abundance did not indicate that any of the variables of elevation, stream distance, site water potential, heat load index, or plot disturbance were able to sufficiently account for variance of species abundance by themselves. Since A. rubrum is a habitat generalist, it is not limited by a narrow range of environmental factors but rather proliferates under a wide set of conditions. 
+
+*Abies fraseri*
+However, the analysis of the models for Abies fraseri abundance indicated that the variables of plot elevation and plot disturbance (specifically the "VIRGIN" treatment) were able to better account for variance of A. fraseri abundance. As a result, the data appear to indicate that A. fraseri prefers undisturbed, high-elevation plots in order to proliferate. This is consistent with the observation that A. fraseri is a habitat specialist, requiring this specific set of conditions in order to proliferate and compete with Acer rubrum. 
+
+
+
+4. (Optional) Examine the behavior of the function stepAIC() using the exploratory models developed above. This is a very simple and not very robust machine learning stepwise algorithm that uses AIC to select a best model. By default it does a backward selection routine.
+
+*Acer rubrum*
+```{r}
+stepAIC(rubrum_main_mod)
+```
+
+The above operation indicates that the rubrum model with the lowest AIC value would involve the variables elev, beers, tci, and streamdist. 
+
+
+```{r}
+rubrum_ebts_mod = lm(cover ~ elev + beers + tci + streamdist, data = rubrum)
+AIC(rubrum_ebts_mod)
+#Stats for rubrum_ebts_mod
+summary(rubrum_ebts_mod)
+anova(rubrum_ebts_mod)
+```
+
+Analysis of this model reveals statistical significance but with only ~4% variance explained. 
+
+
+*Abies fraseri*
+```{r}
+stepAIC(fraseri_main_mod)
+```
+
+The above operation indicates that the fraseri model with the lowest AIC value would involve the variables elev and tci.
+
+```{r}
+fraseri_et_mod = lm(cover ~ elev + tci, data = fraseri)
+AIC(fraseri_et_mod)
+#Stats for fraseri_et_mod
+summary(fraseri_et_mod)
+anova(fraseri_et_mod)
+```
+
+Analysis of this model reveals a lower AIC value compared to the other fraseri models. In addition, ~50% variance explained is achieved, but the elev variable is the only variable indicated to be statistically significant beyond 0.05.
+
+
+
+
+
+
+
+
