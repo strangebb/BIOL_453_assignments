@@ -304,6 +304,8 @@ Statistical analysis of the Acer rubrum disturbance model does not indicate stat
 
 COMBINED MODELS WITH ALL VARIABLES
 
+*ACER RUBRUM*
+
 ```{r}
 rubrum_main_mod = lm(cover ~ elev + beers + tci + streamdist + disturb, data = rubrum)
 #Stats for rubrum_main_mod
@@ -313,7 +315,28 @@ anova(rubrum_main_mod)
 
 With a combined Acer rubrum model, the anova test suggests that elev, beers, tci, and streamdist are statistically significant, but with only ~4% variance explained. 
 
- 
+
+```{r}
+#Adjusting rubrum main model to remove least significant terms
+rubrum_ebts_mod = lm(cover ~ elev + beers + tci + streamdist, data = rubrum)
+summary(rubrum_ebts_mod)
+anova(rubrum_ebts_mod)
+```
+
+This yields a statistically significant model but still with only ~4% variance explained. 
+
+```{r}
+#Adjusting rubrum ebts model to remove least significant term
+rubrum_ebs_mod = update(rubrum_ebts_mod, . ~ . - tci)
+summary(rubrum_ebs_mod)
+anova(rubrum_ebs_mod)
+```
+
+This yields a statistically significant model but with only ~3.7% variance explained. Therefore, the rubrum_ebts model accounting for elev, beers, tci, and streamdist is the best of the combined models. 
+
+
+*ABIES FRASERI*
+
 ```{r}
 fraseri_main_mod = lm(cover ~ elev + beers + tci + streamdist + disturb, data = fraseri)
 #Stats for fraseri_main_mod
@@ -321,7 +344,17 @@ summary(fraseri_main_mod)
 anova(fraseri_main_mod)
 ```
 
-The Abies fraseri combined model shows a different story. Here, the elev variable is statistically significant with ~58% variance explained. This model yas yielded the highest % of variance explained so far. 
+This yields a statistically significant model with ~58% variance explained. The anova test indicates that the variables of elev and tci are the most significant. 
+
+```{r}
+#Adjusting fraseri_main_mod to remove least significant terms
+fraseri_et_mod = lm(cover ~ elev + tci, data = fraseri)
+summary(fraseri_et_mod)
+anova(fraseri_et_mod)
+```
+
+This yields a statistically significant model with ~52% variance explained. 
+
 
 
 
@@ -329,43 +362,71 @@ The Abies fraseri combined model shows a different story. Here, the elev variabl
 COMBINED MODELS ACCOUNTING FOR VARIABLE INTERACTION
 
 
-*VARIABLE INTERACTIONS*
+*ACER RUBRUM*
 
 ```{r}
 #Analysis of potential interactions within Acer rubrum data
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor=3, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(0, 1, 0, 1))
+    r <- abs(cor(x, y))
+    txt <- format(c(r, 0.123456789), digits = digits)[1]
+    txt <- paste0(prefix, txt)
+    if(missing(cex.cor)) 
+        cex.cor <- 0.8/strwidth(txt)
+    text(0.5, 0.5, txt, cex = cex.cor)
+}
 par(mfrow=c(6, 6))
 pairs(cover ~ elev + tci + streamdist + disturb + beers, subset = species == "Acer rubrum", data = trees)
-pairs(rubrum, lower.panel = panel.smooth, upper.panel = panel.cor)
+pairs(cover ~ elev + tci + streamdist + disturb + beers, subset = species == "Acer rubrum", data = trees, lower.panel = panel.smooth, upper.panel = panel.cor)
 ```
 
-Analysis of potential variable interactions within the Acer rubrum dataset does not reveal any significantly correlated variables.  
+Analysis of potential variable interactions within the Acer rubrum dataset does not reveal any close correlations between cover and any of the explanatory variables. In addition, it does not appear to indicate any close correlations between any of the explanatory variables.  
+
+
+
+*ABIES FRASERI*
 
 
 ```{r}
 #Analysis of potential interactions within Abies fraseri data
 par(mfrow=c(6, 6))
 pairs(cover ~ elev + tci + streamdist + disturb + beers, subset = species == "Abies fraseri", data = trees)
-pairs(fraseri, lower.panel = panel.smooth, upper.panel = panel.cor)
+pairs(cover ~ elev + tci + streamdist + disturb + beers, subset = species == "Abies fraseri", data = trees, lower.panel = panel.smooth, upper.panel = panel.cor)
 ```
 
-This pairs chart for Abies fraseri indicates that cover is most likely correlated to the variables of elevation and disturbance. In addition, potential correlation is indicated between elevation and streamdist, 
+This pairs chart for Abies fraseri indicates that cover is possibly correlated to the elev, streamdist, and disturb explanatory variables (strongest correlation between cover and elev). In addition, there appears to be potential correlation between the variables of elev & disturbance and elev & streamdist. 
+
+```{r}
+#A graphical representation of these potential correlations
+par(mfrow = c(2,2))
+plot(cover ~ elev, data = fraseri, xlab = "Elevation (m)", ylab = "Cover")
+plot(cover ~ streamdist, data = fraseri, xlab = "Nearest Stream Distance (m)", ylab = "Cover")
+plot(streamdist ~ elev, data = fraseri, xlab = "Elevation (m)", ylab = "Nearest Stream Distance (m)")
+boxplot(elev ~ disturb, data = fraseri, xlab = "Disturbance", ylab = "Elevation (m)")
+```
+
+Clear correlation between elevation and cover, as well as elevation and streamdist. Streams are likely more sparse at higher elevations. However, there doesn't appear to be a clear correlation between streamdist and cover.  With disturbance, the plots classified as "Virgin" tend to occur more frequently at higher elevations, possibly due to increased difficulty of logging at higher elevations. 
 
 
 ```{r}
-#Abies fraseri interaction model
-fraseri_interaction_mod = lm(cover ~ elev + streamdist + disturb + beers + elev*streamdist + tci*beers, data = fraseri)
+#Adjusting the Abies fraseri model to account for potential variable interactions. Using the aov() function since "disturb" is not classified as a continuous variable 
+fraseri_int_mod = aov(cover ~ elev + disturb + disturb:elev, data = fraseri)
 summary(fraseri_interaction_mod)
 anova(fraseri_interaction_mod)
 ```
 
-This yields a statistically significant model with ~60% variance explained. 
+This yields a statistically significant model with ~57.5% variance explaiend. 
 
 
 
 
 
-*MODEL DIAGNOSTICS*
+MODEL DIAGNOSTICS
 
+
+*ACER RUBRUM*
 
 ```{r}
 #AIC Values for the rubrum models
@@ -375,21 +436,24 @@ AIC(rubrum_streamdist_mod)
 AIC(rubrum_tci_mod)
 AIC(rubrum_disturb_mod)
 AIC(rubrum_main_mod)
+AIC(rubrum_ebts_mod)
 ```
 
 
-Of the models listed above, the Acer rubrum combined main model yields the lowest AIC value. 
+Of the models listed above, the rubrum_ebts model accounting for elevation, beers, tci, and streamdist yields the lowest AIC value, further suggesting that the explanatory variables of elev, beers, tci, and streamdist best account for the variance of cover.  
 
 
 ```{r}
 #Diagnostics for rubrum main model
 par(mfrow = c(2,2))
-plot(rubrum_main_mod)
+plot(rubrum_ebts_mod)
 ```
 
-For the Acer rubrum model, the diagnostics suggest that the assumption of homoscadisticity does not hold, outliers are present, and the assumption of normal distribution is preserved. 
+
+For the Acer rubrum model, the diagnostics suggest that the assumption of homoscedasticity does not hold and outliers are present. However, the assumption of normal distribution is preserved. 
 
 
+*ABIES FRASERI*
 
 ```{r}
 #AIC Values for the fraseri models
@@ -399,29 +463,41 @@ AIC(fraseri_streamdist_mod)
 AIC(fraseri_tci_mod)
 AIC(fraseri_disturb_mod)
 AIC(fraseri_main_mod)
-AIC(fraseri_interaction_mod)
+AIC(fraseri_et_mod)
+AIC(fraseri_int_mod)
 ```
 
-Here, the Abies fraseri model accounting for the elevation variable alone yields the lowest AIC value.
-
+Here, the fraseri_et model accounting for elevation and tci yields the smallest AIC value.   
 
 
 ```{r}
+#Model diagnostics for the fraseri_int model
 par(mfrow = c(2,2))
-plot(fraseri_elev_mod)
+plot(fraseri_int_mod)
 ```
 
-Model diagnostics of the A. fraseri elevation model reveal that the assumptions of homoscadisticity, normal distribution, and lack of outliers are conserved.
+Model diagnostics of the fraseri_int model reveal that the assumptions of homoscadisticity holds, but the model appears to deviate from normal distribution. 
 
-*Acer rubrum* For A. rubrum, none of the variables alone appear to sufficiently explain variation of abundance.
-*Abies fraseri* For A. fraseri, elevation appears to be the most important in terms of explaining variation of abundance. 
+```{r}
+#Model diagnostics for the frasseri_et model
+par(mfrow = c(2,2))
+plot(fraseri_et_mod)
+```
 
-Overall, variance is better explained for Abies fraseri than for Acer rubrum. Although the Acer rubrum model for all variables and the ebs model for only elev, beers, and streamdist are able to achieve statistical significance for contained variables, their relatively small % of variance explained means that they are not able to adequately account for variance of the abundance coverage variable. However, the achieved statistical significance and ~50% of variance explained for the Abies fraseri elevation model means that it is better able to account for variance of the A. fraseri abundance coverage variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that the variables are able to better explain the variance of A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes. 
+The above model diagnostics for the fraseri_et model suggest that the assumptions of homoscedasticity and normal distribution are preserved, but there does appear to be an outlier present. Nevertheless, the fraseri_et model accounting for elevation and tci is likely the best fit model, based on it having the lowest AIC value and the preservation of OLS assumptions (except for outliers).
+
+
+
+*Acer rubrum* For A. rubrum, none of the variables alone appear to sufficiently explain variation of abundance. In general, abundance is poorly explained, based on most models indicating that only roughly 4% of variance is accounted for. 
+*Abies fraseri* For A. fraseri, elevation and tci appear to be the most important in terms of explaining variation of abundance. 
+
+Overall, variance is better explained for Abies fraseri than for Acer rubrum. Although the Acer rubrum model for all variables and the ebts model for only elev, beers, tci, and streamdist are able to achieve statistical significance for contained variables, their relatively small % of variance explained means that they are not able to adequately account for variance of the abundance coverage variable. However, the achieved statistical significance and ~57% variance explained for the Abies fraseri elevation/tci model means that it is better able to account for variance of the A. fraseri abundance coverage variable. Since Acer rubrum is a habitat generalist, it would make sense that the presented variables are not able to sufficiently explain the distribution of A. rubrum abundance since the species is able to thrive in a wide range of habitat conditions. Furthermore, since Abies fraseri is a habitat specialist, it would make sense that the variables are able to better explain the variance of A. fraseri abundance distribution since the species is only able to thrive in a narrow range of habitat conditions and plot altitudes. 
 
 
 
 
 2.) Re-examine your solutions to the question above but from the perspective of a General Linear Model (GLM) with a Poisson error term (rather than a Gaussian one as in OLS). Compare your qualatitive assessment of which variables were most important in each model. Does it appear that changing the error distribution changed the results much? In what ways?
+
 
 ```{r}
 rubrum_poi = glm(cover ~ tci + elev + beers + streamdist + disturb, data = rubrum, 
@@ -430,35 +506,34 @@ pseudo_r2 = function(glm_mod) {
                 1 -  glm_mod$deviance / glm_mod$null.deviance
             }   
 pseudo_r2(rubrum_poi)
+summary(rubrum_ebts_mod)
 ```
 
 For Acer rubrum, changing the error distribution to poisson does not appear to change the apparent variance explained (~4%).
 
 
 ```{r}
-fraseri_poi = glm(cover ~ tci + elev + beers + streamdist + disturb, data = fraseri, 
+fraseri_poi = glm(cover ~ elev + tci, data = fraseri, 
            family='poisson')
 pseudo_r2 = function(glm_mod) {
                 1 -  glm_mod$deviance / glm_mod$null.deviance
             }   
 pseudo_r2(fraseri_poi)
-fraseri_poi_elev = glm(cover ~ elev, data = fraseri, 
-           family='poisson')
-pseudo_r2(fraseri_poi_elev)
+summary(fraseri_et_mod)
 ```
 
 
-For Abies fraseri main model, changing the error distribution resulted in a higher R-squared value and more variance explained for a fraseri model including all variables, but did not significantly increase the R-squared value and variance explained for a fraseri model accounting for elevation variable alone (~61% and ~46% variance explained).
+For Abies fraseri, changing the error distribution to poisson appears to lower the % variance explained (from ~52% to ~51%) when comparted to gaussian. 
 
 
 
 3. Provide a plain English summary (i.e., no statistics) of what you have found and what conclusions we can take away from your analysis?
 
 *Acer rubrum*
-Analysis of the models for A. rubrum abundance did not indicate that any of the variables of elevation, stream distance, site water potential, heat load index, or plot disturbance were able to sufficiently account for variance of species abundance by themselves. Since A. rubrum is a habitat generalist, it is not limited by a narrow range of environmental factors but rather proliferates under a wide set of conditions. 
+Analysis of the models for Acer rubrum abundance did not indicate that any of the variables of elevation, stream distance, site water potential, heat load index, or plot disturbance were able to sufficiently account for variance of species abundance by themselves. Since Acer rubrum is a habitat generalist, it is not limited by a narrow range of environmental factors but rather proliferates under a wide set of conditions. 
 
 *Abies fraseri*
-However, the analysis of the models for Abies fraseri abundance indicated that the variables of plot elevation and plot disturbance (specifically the "VIRGIN" treatment) were able to better account for variance of A. fraseri abundance. As a result, the data appear to indicate that A. fraseri prefers undisturbed, high-elevation plots in order to proliferate. This is consistent with the observation that A. fraseri is a habitat specialist, requiring this specific set of conditions in order to proliferate and compete with Acer rubrum. 
+However, the analysis of the models for Abies fraseri abundance indicated that the variables of plot elevation and tci were able to best account for variance of A. fraseri abundance. As a result, the data appear to indicate that A. fraseri prefers higher elevation plots than Acer rubrum with certain tci water potential values. This is consistent with the observation that Abies fraseri is a habitat specialist, requiring a specific set of conditions in order to proliferate and compete with Acer rubrum. 
 
 
 
@@ -469,7 +544,7 @@ However, the analysis of the models for Abies fraseri abundance indicated that t
 stepAIC(rubrum_main_mod)
 ```
 
-The above operation indicates that the rubrum model with the lowest AIC value would involve the variables elev, beers, tci, and streamdist. 
+The above operation indicates that the rubrum model with the lowest AIC value would involve the variables elev, beers, tci, and streamdist, which is consistent with the rubrum_ebts model. 
 
 
 ```{r}
@@ -488,7 +563,7 @@ Analysis of this model reveals statistical significance but with only ~4% varian
 stepAIC(fraseri_main_mod)
 ```
 
-The above operation indicates that the fraseri model with the lowest AIC value would involve the variables elev and tci.
+The above operation indicates that the fraseri model with the lowest AIC value would involve the variables elev and tci, which is consistent with the fraseri_et model. 
 
 ```{r}
 fraseri_et_mod = lm(cover ~ elev + tci, data = fraseri)
@@ -498,8 +573,4 @@ summary(fraseri_et_mod)
 anova(fraseri_et_mod)
 ```
 
-Analysis of this model reveals a lower AIC value compared to the other fraseri models. In addition, ~50% variance explained is achieved, but the elev variable is the only variable indicated to be statistically significant beyond 0.05.
-
-
-
-
+Analysis of this model reveals a lower AIC value compared to the other fraseri models. In addition, ~52% variance explained is achieved, but the elev variable is the only variable indicated to be statistically significant beyond 0.05.
