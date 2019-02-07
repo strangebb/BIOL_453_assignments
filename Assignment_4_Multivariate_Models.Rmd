@@ -15,29 +15,31 @@ data(dune.env)
 ?dune
 ```
 
-
+##########################################################
 
 1.) Conduct an indirect ordination on the dune plant community. Specifically, visually examine a NMDS plot using the bray-curtis distance metric. Below is some code to help you develop a potential plot that emphasizes the role of the environmental variable "Moisture". Describe how you interpret the graphic. What is the goal of creating such a plot? Does this analysis suggest any interesting findings with respect to the dune vegetation?
 
 
 ```{r}
-#Inirect ordination NMDS
+#Indirect ordination NMDS operation
 dune_mds = metaMDS(dune)
 #Plot results of NMDS ordination
 plot(dune_mds, type='n', main = "Moisture NMDS")
-text(dune_mds, 'sp', cex=.5)
 color_vect = rev(terrain.colors(6))[-1]
+text(dune_mds, 'sp', cex=.5)
 points(dune_mds, 'sites', pch=19, 
-        col=color_vect[dune.env$Moisture])
+       col=color_vect[dune.env$Moisture])
 legend('topright', paste("Moisture =", 1:5, sep=''), 
         col=color_vect, pch=19)
+stressplot(dune_mds, main = "Stress plot")
 ```
 
-The goal of creating the above NMDS graphic is to order plant species distribution in the dune community based on site similarities in terms of the moisture level with which they are associated. It appears that sites exhibiting a Moisture index of 1 or 2 are roughly similar to each other in terms of their species distributions. 
+The goal of creating the above NMDS graphic is to order the sites based on species composition and color code them according to the moisture index levels with which they are associated. In other words, the graphic displays simmilarity/dissimilarity between sites based on species composition given the Moisture focus variable. Since the points that are color coded for Moisture index 1 are grouped relatively close together, these sites are more similar to each other than they are to points representing plots of different mosture index values and therefore likely contain similar compositions of dune vegetation species. In addition, points coding for sites associated with Moisture index 2 appear relatively close together and are therefore likely similar to each other in terms of species composition and are likely also similar to Moisture 1 sites in terms of species composition.  
+Potential Hypotheses:
+1) Sites with smaller Moisture index values (1-2) have similar species compositions
+2) The species Trifprat, Achimill, Rumeacet, Vicilath, Lolipere, Anthodor, Planlanc, Poaprat, Bromhord, Poatriv, Elymrepe, and Cirsarve prefer habitats with smaller Moisture index values (1-2)
 
-
-
-
+###########################################################
 
 
 
@@ -46,6 +48,7 @@ The goal of creating the above NMDS graphic is to order plant species distributi
 
 ```{r}
 cca_dune = cca(dune ~ ., data=dune.env)
+RsquareAdj(cca_dune, 100)
 anova(cca_dune, permutations = 999)
 anova(cca_dune, by='margin', permutations = 999)
 #Plot results
