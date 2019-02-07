@@ -19,18 +19,21 @@ data(dune.env)
 
 1.) Conduct an indirect ordination on the dune plant community. Specifically, visually examine a NMDS plot using the bray-curtis distance metric. Below is some code to help you develop a potential plot that emphasizes the role of the environmental variable "Moisture". Describe how you interpret the graphic. What is the goal of creating such a plot? Does this analysis suggest any interesting findings with respect to the dune vegetation?
 
+
 ```{r}
- plot(dune_mds, type='n')
- text(dune_mds, 'sp', cex=.5)
- # generate vector of colors 
- color_vect = rev(terrain.colors(6))[-1]
- points(dune_mds, 'sites', pch=19, 
+#Inirect ordination NMDS
+dune_mds = metaMDS(dune)
+#Plot results of NMDS ordination
+plot(dune_mds, type='n')
+text(dune_mds, 'sp', cex=.5)
+color_vect = rev(terrain.colors(6))[-1]
+points(dune_mds, 'sites', pch=19, 
         col=color_vect[dune.env$Moisture])
- legend('topright', paste("Moisture =", 1:5, sep=''), 
+legend('topright', paste("Moisture =", 1:5, sep=''), 
         col=color_vect, pch=19)
 ```
 
-
+The above graph depicts groupings of species according to the level of moisture they prefer. 
 
 
 
@@ -42,7 +45,17 @@ data(dune.env)
 2.) Carry out a direct ordination using CCA in order to test any potential hypotheses that you developed after examining the MDS plot. Specifically, carry out a test of the entire model (i.e., including all constrained axes) and also carry out tests at the scale of individual explanatory variables you included in your model if you included more than one variable. Plot your results. 
 
 
+```{r}
+cca_dune = cca(dune ~ ., data=dune.env)
+anova(cca_dune, permutations = 999)
+anova(cca_dune, by='margin', permutations = 999)
+#Plot results
+plot(cca_dune, type='n', scaling=1)
+orditorp(cca_dune, display='sp', cex=0.5, scaling=1, col='blue')
+text(cca_dune, display='bp', col='red')
 
+
+```
 
 
 
