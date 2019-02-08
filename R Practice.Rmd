@@ -59,5 +59,53 @@ summary(main.fruit.mod)
 
 
 
+```{r}
+#Multivariate ordination practice
+library(dummies)
+source('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/scripts/utility_functions.R')
+uni_sp = unique(trees$spcode)
+uni_site = unique(trees$plotID)
+comm = tapply(trees$cover,
+              INDEX = list(trees$plotID, trees$spcode),
+              mean)
+comm = ifelse(is.na(comm), 0, comm)
+comm[1:5, 1:5]
+uni_sp = unique(trees$spcode)
+sp_sum = apply(comm, 2, sum)
+site_sum = apply(comm, 1, sum)
+par(mfrow=c(2,2))
+hist(sp_sum)
+col = colorRamp(c('red', 'orange', 'blue'))
+sp_cols = col(length(uni_sp))
+plot(sp_sum[order(sp_sum, decreasing=T)], type='o', col='red', lwd=2,
+     xlab='Sp Rank', ylab='Sum Cover')
+hist(site_sum)
+plot(site_sum[order(site_sum, decreasing=T)], type='o', col='red', lwd=2,
+     xlab='Site Rank', ylab='Sum Cover')
 
 
+
+
+
+
+
+```
+
+
+
+
+```{r}
+#Explanatory matrix
+cols_to_keep = c('elev', 'tci', 'streamdist', 'disturb', 'beers')
+env = aggregate(trees[ , cols_to_keep], by = list(trees$plotID), function(x) x[1])
+row.names(env) = env[ , 1]
+env = env[ , -1]
+plot(tree_mds, type='n')
+text(tree_mds, 'sp', cex=.5)
+ # generate vector of colors 
+color_vect = rev(terrain.colors(6))[-1]
+points(tree_mds, 'sites', pch=19, 
+        col=color_vect[env$elev])
+legend('topright', paste("Moisture =", 1:5, sep=''), 
+        col=color_vect, pch=19)
+```
