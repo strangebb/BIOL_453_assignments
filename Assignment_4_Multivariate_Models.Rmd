@@ -31,7 +31,6 @@ points(dune_mds, 'sites', pch=19,
        col=color_vect[dune.env$Moisture])
 legend('topright', paste("Moisture =", 1:5, sep=''), 
         col=color_vect, pch=19)
-stressplot(dune_mds, main = "Stress plot")
 ```
 
 The goal of creating the above NMDS graphic is to order the sites based on species composition and color code them according to the moisture index levels with which they are associated. In other words, the graphic displays simmilarity/dissimilarity between sites based on species composition given the Moisture focus variable. Since the points that are color coded for Moisture index 1 are grouped relatively close together, these sites are more similar to each other than they are to points representing plots of different mosture index values and therefore likely contain similar compositions of dune vegetation species. In addition, points coding for sites associated with Moisture index 2 appear relatively close together and are therefore likely similar to each other in terms of species composition and are likely also similar to Moisture 1 sites in terms of species composition.  
@@ -48,15 +47,11 @@ Potential Hypotheses:
 
 ```{r}
 cca_dune = cca(dune ~ ., data=dune.env)
-RsquareAdj(cca_dune, 100)
-anova(cca_dune, permutations = 999)
-anova(cca_dune, by='margin', permutations = 999)
 #Plot results
-plot(cca_dune, type='n', scaling=1)
-orditorp(cca_dune, display='sp', cex=0.5, scaling=1, col='blue')
+plot(cca_dune, type='n', scaling=3, main = "Dune Community CCA")
+orditorp(cca_dune, display='sp', cex=0.5, scaling=3.5, col='blue')
 text(cca_dune, display='bp', col='red')
-
-
+plot(cca_dune, scaling=3)
 ```
 
 
