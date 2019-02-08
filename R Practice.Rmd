@@ -1,0 +1,16 @@
+---
+title: "R_Practice"
+author: "James Strange"
+date: "February 7, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+trees = read.csv('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/data/treedata_subset.csv')
+library(MASS)
+
+```
+
+## This is a file I've created for practicing stuff I learn in class. 
+
