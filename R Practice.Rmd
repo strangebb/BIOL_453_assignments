@@ -16,7 +16,7 @@ library(scatterplot3d)
 library(ggplot2)
 ```
 
-## This is a file I've created for practicing stuff I learn in class. 
+## This is a sandbox file I've created for practicing stuff I learn in class. 
 
 ```{r}
 #Univariate Analysis Practice
