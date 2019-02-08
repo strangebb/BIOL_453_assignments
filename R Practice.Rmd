@@ -8,9 +8,56 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 trees = read.csv('https://raw.githubusercontent.com/dmcglinn/quant_methods/gh-pages/data/treedata_subset.csv')
+weeds = read.csv('http://dmcglinn.github.io/quant_methods/data/milkweeds.csv')
 library(MASS)
-
+library(vegan)
+library(gridExtra)
+library(scatterplot3d)
+library(ggplot2)
 ```
 
 ## This is a file I've created for practicing stuff I learn in class. 
+
+```{r}
+#Univariate Analysis Practice
+sapply(trees, class)
+sapply(weeds, class)
+par(mfrow = c(1,2))
+boxplot(plant_ht_cm ~ trt, data = weeds, xlab = "Treatment", ylab = "Plant Height (cm)", main = "Treatment vs. Plant Height")
+boxplot(fruit_mass_mg ~ trt, data = weeds, xlab = "Treatment", ylab = "Fruit Mass (mg)", main = "Treatment vs Fruit Mass")
+par(mfrow = c(1,1))
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor=3, ...)
+{
+    usr <- par("usr"); on.exit(par(usr))
+    par(usr = c(0, 1, 0, 1))
+    r <- abs(cor(x, y))
+    txt <- format(c(r, 0.123456789), digits = digits)[1]
+    txt <- paste0(prefix, txt)
+    if(missing(cex.cor)) 
+        cex.cor <- 0.8/strwidth(txt)
+    text(0.5, 0.5, txt, cex = cex.cor)
+}
+pairs(fruit_mass_mg ~ trt + plant_ht_cm, data = weeds, lower.panel = panel.smooth, upper.panel = panel.cor)
+
+```
+
+
+```{r}
+fruit.mass.mod = lm(fruit_mass_mg ~ plant_ht_cm, data = weeds)
+plot(fruit_mass_mg ~ plant_ht_cm, data = weeds, xlab = "Plant Height (cm)", ylab = "Fruit Mass (mg)", main = "Plant Height vs. Fruit Mass")
+abline(fruit.mass.mod)
+```
+
+```{r}
+main.fruit.mod = lm(fruit_mass_mg ~ trt + plant_ht_cm, data = weeds)
+int.fruit.mod = lm(fruit_mass_mg ~ trt + plant_ht_cm + trt*plant_ht_cm, data = weeds)
+AIC(main.fruit.mod)
+AIC(int.fruit.mod)
+stepAIC(main.fruit.mod)
+summary(main.fruit.mod)
+```
+
+
+
+
 
