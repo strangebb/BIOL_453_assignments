@@ -33,10 +33,10 @@ legend('topright', paste("Moisture =", 1:5, sep=''),
         col=color_vect, pch=19)
 ```
 
-The goal of creating the above NMDS graphic is to order the 20 sites based on similarities or differences in species composition and color code them according to the moisture index levels with which they are associated. In other words, the graphic groups together sites with similar species compositions given the Moisture explanatory variable. Since the points that are color coded for Moisture index 1 are grouped relatively close together, these sites are more similar to each other in terms of species composition than they are to points representing plots of different mosture index values and therefore likely contain similar compositions of dune vegetation.   
+The goal of creating the above NMDS graphic is to order the 20 sites based on similarities or differences in their species composition and color code them according to the moisture index levels with which they are associated. In other words, the graphic groups together sites with similar species compositions given the Moisture explanatory variable. Since the points that are color coded for Moisture index 1 are grouped relatively close together, these sites are more similar to each other in terms of species composition than they are to points representing plots of different mosture index values and therefore likely contain similar compositions of dune vegetation.   
 Potential Hypotheses:
 1) Sites with mosture index 1 have similar species compositions
-2) The species Anthodor, Vicilath, Planlanc, Trifprat, and Achimill occur most abundantly in sites with Moisture index 1
+2) The species Anthodor, Vicilath, Planlanc, Trifprat, and Achimill are most closely associated with sites with Moisture index 1
 
 ###########################################################
 
@@ -55,7 +55,7 @@ text(cca_dune, display='bp', col='red')
 plot(cca_dune, scaling=3, main = "Dune Community Main CCA")
 ```
 
-Analysis of the above graphics suggests that the species Anthodor, Vicilath, Planlac, Trifprat, and Achimill likely occurr in similar sites (i.e. sites with Moisture index 1). 
+Analysis of the above graphics suggests that the species Anthodor, Vicilath, Planlac, Trifprat, and Achimill likely occurr in similar sites (i.e. sites with Moisture index 1 and the 'BF' Management treatment). 
 
 ```{r}
 #Duna CCA stats
@@ -99,7 +99,16 @@ plot(cca_dune_Use, scaling=3, main = "Dune Community Use CCA")
 plot(cca_dune_Manure, scaling=3, main = "Dune Community Manure CCA")
 ```
 
-Of the individual variable models, the Moisture model yields the highest R-squared value and the lowest p-value. The plot of the results indicates that Trifprat, Achimill, Vicilath, Planlanc, and Anthodor are closely associated with Moisture 1, as well as the 'BF' Management treatment. 
+Of the individual variable models, the Moisture model yields the highest R-squared value and the lowest p-value. The plots of the results indicate that Trifprat, Achimill, Vicilath, Planlanc, and Anthodor are most losely associated with Moisture 1, as well as the 'BF' Management treatment. 
+
+```{r}
+#Model isolating Moisture and Management variables
+cca_moisture.mgmt = cca(dune ~ Moisture + Management, data = dune.env)
+RsquareAdj(cca_moisture.mgmt, 100)
+anova(cca_moisture.mgmt, permutations = 1000)
+anova(cca_moisture.mgmt, by='margin', permutations = 1000)
+plot(cca_moisture.mgmt, scaling=3, main = "Dune Community Moisture/Management CCA")
+```
 
 
 ###########################################################
@@ -107,7 +116,7 @@ Of the individual variable models, the Moisture model yields the highest R-squar
 
 3.) Do your two analyses agree with one another or complement one another or do these two analyses seem to be suggesting different take home messages? Which analysis do you find to be more useful?
 
-
+The two analyses agree with one another because they both show the differences in environmental distribution of Anthodor, Vicilath, Planlac, Trifprat, and Achimill to be closely tied to sites with Mosture 1 and Management BF. Specifically, the NMDS analysis shows that sites with Moisture 1 are relatively similar in terms of species composition and that Anthodor, Vicilath, Planlac, Trifprat, and Achimill are closely associated with these sites. The CCA analyses provides further evidence that these species are associated with Moisture 1 sites, but also shows that a correlation to the Management variable is possible in that they are also tied to sites associated with the Biological Farming management treatment. 
 
 
 
