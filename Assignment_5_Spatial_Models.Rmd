@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(vegan)
+library(dummies)
 data(BCI)
 ## UTM Coordinates (in metres)
 BCI_xy = data.frame(x = rep(seq(625754, 626654, by=100), each=5), 
@@ -19,7 +20,14 @@ BCI_xy = data.frame(x = rep(seq(625754, 626654, by=100), each=5),
 1) Examine if there is evidence of spatial dependence in a rare and a common species in the BCI tree dataset
 
 ```{r}
+plot(BCI_xy, cex=sr/max(sr))
+col_brks = hist(sr, plot=F)$breaks
+col_indices = as.numeric(cut(sr, col_brks))
+cols = rev(terrain.colors(length(col_brks)))
+plot(BCI_xy, cex=2, pch=19, col=cols[col_indices])
 
+#find species that have a sum greater than the mean
+#find species that have a sum less than the mean
 
 
 ```
