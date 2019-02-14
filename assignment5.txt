@@ -8,21 +8,78 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(vegan)
+library(dummies)
 data(BCI)
-## UTM Coordinates (in metres)
+## UTM Coordinates (in meters)
 BCI_xy = data.frame(x = rep(seq(625754, 626654, by=100), each=5), 
                     y = rep(seq(1011569,  1011969, by=100), len=50))
 ```
 
 #############################################################
 
+
 1) Examine if there is evidence of spatial dependence in a rare and a common species in the BCI tree dataset
 
 ```{r}
-
-
-
+sp_total = apply(BCI, 2, sum)
+sp_total
+mean(sp_total)
+hist(colSums(BCI))
+hist(log10(colSums(BCI)))
 ```
+
+A common species can be defines as having an abundance greater than 1000
+A rare species can be defined as having an abundance less than 100
+
+Common Species :: "Trichilia.tuberculata" - 1681
+Rare Species :: "Tachigali.versicolor" - 98
+
+```{r}
+#create data subsets for each of the two species of interest
+tuberculata = BCI[ , "Trichilia.tuberculata"]
+versicolor = BCI[ , "Tachigali.versicolor"]
+
+#calculate Euclidian distances
+tuberculata_dist = dist(tuberculata)
+versicolor_dist = dist(versicolor)
+
+#calculate spatial distance
+xy_dist = dist(BCI_xy)
+
+#create parameter for max distance
+max_dist = max(xy_dist) / 2
+
+#plot tuberculata results
+plot(xy_dist, tuberculata_dist, main = "Trichilia tuberculata")
+abline(lm(tuberculata_dist ~ xy_dist), lwd=3, col='red')
+lines(lowess(xy_dist, tuberculata_dist), lwd=3, col='pink')
+abline(v = max_dist, col='red', lwd=3, lty=2)
+
+#plot versicolor results
+plot(xy_dist, versicolor_dist, main = "Tachigali versicolor")
+abline(lm(versicolor_dist ~ xy_dist), lwd=3, col='red')
+lines(lowess(xy_dist, versicolor_dist), lwd=3, col='pink')
+abline(v = max_dist, col='red', lwd=3, lty=2)
+```
+
+Red line = theoretical
+Pink line = smoother
+Flat - abundance is not spatially structured but is instead random 
+
+If it were positive - aggregation (i.e. spatial dependence)
+If it were negative - non aggregation
+
+```{r}
+#compute correlations
+obs_tuberculata_cor = cor(xy_dist, tuberculata_dist)
+obs_tuberculata_cor
+obs_versicolor_cor = cor(xy_dist, versicolor_dist)
+obs_versicolor_cor
+```
+
+
+-permutation test for significance
+-mantel function test
 
 
 
