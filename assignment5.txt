@@ -18,7 +18,7 @@ BCI_xy = data.frame(x = rep(seq(625754, 626654, by=100), each=5),
 #############################################################
 
 
-1) Examine if there is evidence of spatial dependence in a rare and a common species in the BCI tree dataset
+1) Examine if there is evidence of spatial dependence in a rare and a common species in the BCI tree dataset.
 
 ```{r}
 sp_total = apply(BCI, 2, sum)
@@ -34,14 +34,15 @@ A rare species can be defined as having an abundance less than 100
 Common Species :: "Trichilia.tuberculata" - 1681
 Rare Species :: "Tachigali.versicolor" - 98
 
-```{r}
-#create data subsets for each of the two species of interest
-tuberculata = BCI[ , "Trichilia.tuberculata"]
-versicolor = BCI[ , "Tachigali.versicolor"]
 
-#calculate Euclidian distances
+*Trichilia tuberculata* - Common Species
+
+```{r}
+#create a data subset for tuberculata
+tuberculata = BCI[ , "Trichilia.tuberculata"]
+
+#calculate tuberculata Euclidian distance
 tuberculata_dist = dist(tuberculata)
-versicolor_dist = dist(versicolor)
 
 #calculate spatial distance
 xy_dist = dist(BCI_xy)
@@ -54,6 +55,65 @@ plot(xy_dist, tuberculata_dist, main = "Trichilia tuberculata")
 abline(lm(tuberculata_dist ~ xy_dist), lwd=3, col='red')
 lines(lowess(xy_dist, tuberculata_dist), lwd=3, col='pink')
 abline(v = max_dist, col='red', lwd=3, lty=2)
+```
+
+In the above graphic, both the theoretical and smoother line are relatively flat, indicating that the distribution of Trichilia tuberculata is not spatially structured but is instead random. 
+
+```{r}
+#compute observed correlation of tuberculata Euclidian distance to overall spatial distance
+obs_tuberculata_cor = cor(xy_dist, tuberculata_dist)
+obs_tuberculata_cor
+```
+
+Observed correlation = 0.02876206 (~2.9% correlation)
+
+```{r}
+#permutation test for tuberculata significance
+nperm = 1000
+null_tuberculata_cor = obs_tuberculata_cor
+for (i in 2:nperm) {
+  tuber_tmp_xy = BCI_xy[sample(nrow(BCI_xy)), ]
+  null_tuberculata_cor[i] = cor(dist(tuber_tmp_xy), tuberculata_dist)
+}
+sum(null_tuberculata_cor >= obs_tuberculata_cor) / nperm 
+```
+
+p-value ~ 0.3, variance between tuberculata Euclidian distance and overall spatial distance is insignificant (observed correlation is not significantly different from null correlation)
+
+```{r}
+#mantel() function test for tuberculata
+tuberculata_mantel = mantel(xy_dist, tuberculata_dist)
+tuberculata_mantel
+```
+
+The mantel() correlation test yields a p-value ~ 0.3 (rougly similar to the p-value from the permutations test) and a Mantel statistic of r = 0.02876
+
+```{r}
+#boxplot comparison of permutation test to mantel test
+boxplot(list(null_tuberculata_cor, tuberculata_mantel$perm), horizontal = T, boxwex = 0.5,
+        names = c('Permutation', 'Mantel'), xlab='Correlation', main = 'Trichilia tuberculata correlation')
+abline(v=obs_tuberculata_cor, col='red')
+```
+
+The results of both tests look relatively similar. Both indicate that observed correlation is not significantly greater than null correlation. Instead, there appears to be no statistically significant difference between observed correlation and null correlation, indicating that the distribution of Trichilia tuberculata is not significantly correlated to spatial structure but rather appears to be random. 
+
+
+
+*Tachigali versicolor* - Rare species
+
+
+```{r}
+#create data subset for Tachigali versicolor
+versicolor = BCI[ , "Tachigali.versicolor"]
+
+#calculate Euclidian distance
+versicolor_dist = dist(versicolor)
+
+#calculate spatial distance
+xy_dist = dist(BCI_xy)
+
+#create parameter for max distance
+max_dist = max(xy_dist) / 2
 
 #plot versicolor results
 plot(xy_dist, versicolor_dist, main = "Tachigali versicolor")
@@ -62,30 +122,45 @@ lines(lowess(xy_dist, versicolor_dist), lwd=3, col='pink')
 abline(v = max_dist, col='red', lwd=3, lty=2)
 ```
 
-Red line = theoretical
-Pink line = smoother
-Flat - abundance is not spatially structured but is instead random 
-
-If it were positive - aggregation (i.e. spatial dependence)
-If it were negative - non aggregation
+The above graph gives similar results as Trichilia tuberculata. Both the theoretical and smoother lines are relatively flat, indicating that versicolor distribution is not spatially dependent but appears to be random.  
 
 ```{r}
-#compute correlations
-obs_tuberculata_cor = cor(xy_dist, tuberculata_dist)
-obs_tuberculata_cor
+#compute observed correlation of versicolor Euclidian distance to overall spatial distance
 obs_versicolor_cor = cor(xy_dist, versicolor_dist)
 obs_versicolor_cor
 ```
 
+Observed correlation = 0.01059894 (~1.1% correlation)
 
--permutation test for significance
--mantel function test
+```{r}
+#permutation test for versicolor significance
+nperm = 1000
+null_versicolor_cor = obs_versicolor_cor
+for (i in 2:nperm) {
+  versi_tmp_xy = BCI_xy[sample(nrow(BCI_xy)), ]
+  null_versicolor_cor[i] = cor(dist(versi_tmp_xy), versicolor_dist)
+}
+sum(null_versicolor_cor >= obs_versicolor_cor) / nperm
+```
 
+p-value ~ 0.4, variance between versicolor Euclidian distance and overall spatial distance is insignificant (observed correlation is not larger than null)
 
+```{r}
+#mantel() function test for versicolor
+versicolor_mantel = mantel(xy_dist, versicolor_dist)
+versicolor_mantel
+```
 
+The mantel() correlation test yields a p-value ~ 0.4 (rougly similar to the p-value from the permutations test) and a Mantel statistic of r = 0.0106
 
+```{r}
+#boxplot comparison of permutation test to mantel test
+boxplot(list(null_versicolor_cor, versicolor_mantel$perm), horizontal = T, boxwex = 0.5,
+        names = c('Permutation', 'Mantel'), xlab='Correlation', main = 'Tachigali versicolor correlation')
+abline(v=obs_versicolor_cor, col='red')
+```
 
-
+The results of both tests look relatively similar. Both indicate that observed correlation is not significantly greater than null correlation. As a result, the distribution of Tachigali versicolor is not spatially dependant but instead appears to be random.  
 
 
 
@@ -114,3 +189,37 @@ With both models examine the spatial dependence of the residuals using the funct
 Did including the spatial error term have a large impact on the coefficients of the model?
 Did including the spatial error terms significantly improve model fit (use function anova to carry out model comparison)?
 Explain why you did or did not observe a difference in the influence of adding the spatial error term between the two models.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Red line = theoretical
+Pink line = smoother
+Flat - abundance is not spatially structured but is instead random 
+
+If it were positive - aggregation (i.e. spatial dependence)
+If it were negative - non aggregation
