@@ -49,11 +49,11 @@ tuberculata_dist = dist(tuberculata)
 #calculate spatial distance
 xy_dist = dist(BCI_xy)
 
-#create parameter for max distance
+#define parameter for max distance
 max_dist = max(xy_dist) / 2
 
-#plot tuberculata results
-plot(xy_dist, tuberculata_dist, main = "Trichilia tuberculata")
+#plot results
+plot(xy_dist, tuberculata_dist, xlab = "Spatial Distance", ylab = "Euclidian Distance", main = "Trichilia tuberculata")
 abline(lm(tuberculata_dist ~ xy_dist), lwd=3, col='red')
 lines(lowess(xy_dist, tuberculata_dist), lwd=3, col='pink')
 abline(v = max_dist, col='red', lwd=3, lty=2)
@@ -70,17 +70,18 @@ obs_tuberculata_cor
 Observed correlation = 0.02876206 (~2.9% correlation)
 
 ```{r}
-#permutation test for tuberculata significance
+#conduct permutation test for tuberculata significance
 nperm = 1000
 null_tuberculata_cor = obs_tuberculata_cor
 for (i in 2:nperm) {
   tuber_tmp_xy = BCI_xy[sample(nrow(BCI_xy)), ]
   null_tuberculata_cor[i] = cor(dist(tuber_tmp_xy), tuberculata_dist)
 }
+#p-value
 sum(null_tuberculata_cor >= obs_tuberculata_cor) / nperm 
 ```
 
-p-value ~ 0.3, variance between tuberculata Euclidian distance and overall spatial distance is insignificant (observed correlation is not significantly different from null correlation)
+p-value ~ 0.3, variance between tuberculata null correlation and observed correlation is not significant (observed correlation does not differ significantly from null correlation)
 
 ```{r}
 #mantel() function test for tuberculata
@@ -91,13 +92,13 @@ tuberculata_mantel
 The mantel() correlation test yields a p-value ~ 0.3 (rougly similar to the p-value from the permutations test) and a Mantel statistic of r = 0.02876
 
 ```{r}
-#boxplot comparison of permutation test to mantel test
+#construct boxplot comparison of permutation test to mantel test
 boxplot(list(null_tuberculata_cor, tuberculata_mantel$perm), horizontal = T, boxwex = 0.5,
         names = c('Permutation', 'Mantel'), xlab='Correlation', main = 'Trichilia tuberculata correlation')
 abline(v=obs_tuberculata_cor, col='red')
 ```
 
-The results of both tests look relatively similar. Both indicate that observed correlation is not significantly greater than null correlation. Instead, there appears to be no statistically significant difference between observed correlation and null correlation, indicating that the distribution of Trichilia tuberculata is not significantly correlated to spatial structure but rather appears to be random. There does not appear to be evidence of spatial dependence. 
+The results of both tests look relatively similar. Both indicate that observed correlation is not significantly greater than null correlation. Instead, there appears to be no statistically significant difference between observed correlation and null correlation, indicating that the distribution of Trichilia tuberculata is not significantly correlated to spatial structure but is instead random. There does not appear to be evidence of spatial dependence for this species. 
 
 
 
@@ -111,20 +112,20 @@ versicolor = BCI[ , "Tachigali.versicolor"]
 #calculate Euclidian distance
 versicolor_dist = dist(versicolor)
 
-#calculate spatial distance
+#calculate spatial distance (same as previous)
 xy_dist = dist(BCI_xy)
 
-#create parameter for max distance
+#redefine parameter for max distance
 max_dist = max(xy_dist) / 2
 
-#plot versicolor results
-plot(xy_dist, versicolor_dist, main = "Tachigali versicolor")
+#plot results
+plot(xy_dist, versicolor_dist, xlab = "Spatial Distance", ylab = "Euclidian Distance", main = "Tachigali versicolor")
 abline(lm(versicolor_dist ~ xy_dist), lwd=3, col='red')
 lines(lowess(xy_dist, versicolor_dist), lwd=3, col='pink')
 abline(v = max_dist, col='red', lwd=3, lty=2)
 ```
 
-The above graph gives similar results as Trichilia tuberculata. Both the theoretical and smoother lines are relatively flat, indicating that versicolor distribution is not spatially dependent but appears to be random.  
+The above graph gives similar results as Trichilia tuberculata. Both the theoretical and smoother lines are relatively flat, indicating that versicolor distribution is not spatially dependent but appears to be random instead.  
 
 ```{r}
 #compute observed correlation of versicolor Euclidian distance to overall spatial distance
@@ -135,17 +136,18 @@ obs_versicolor_cor
 Observed correlation = 0.01059894 (~1.1% correlation)
 
 ```{r}
-#permutation test for versicolor significance
+#conduct permutation test for versicolor significance
 nperm = 1000
 null_versicolor_cor = obs_versicolor_cor
 for (i in 2:nperm) {
   versi_tmp_xy = BCI_xy[sample(nrow(BCI_xy)), ]
   null_versicolor_cor[i] = cor(dist(versi_tmp_xy), versicolor_dist)
 }
+#p-value
 sum(null_versicolor_cor >= obs_versicolor_cor) / nperm
 ```
 
-p-value ~ 0.4, variance between versicolor Euclidian distance and overall spatial distance is insignificant (observed correlation is not larger than null)
+p-value ~ 0.4, variance between null correlation and observed correlation is insignificant (observed correlation is not larger than null)
 
 ```{r}
 #mantel() function test for versicolor
@@ -156,13 +158,13 @@ versicolor_mantel
 The mantel() correlation test yields a p-value ~ 0.4 (rougly similar to the p-value from the permutations test) and a Mantel statistic of r = 0.0106
 
 ```{r}
-#boxplot comparison of permutation test to mantel test
+#construct boxplot comparison of permutation test to mantel test
 boxplot(list(null_versicolor_cor, versicolor_mantel$perm), horizontal = T, boxwex = 0.5,
         names = c('Permutation', 'Mantel'), xlab='Correlation', main = 'Tachigali versicolor correlation')
 abline(v=obs_versicolor_cor, col='red')
 ```
 
-The results of both tests look relatively similar. Both indicate that observed correlation is not significantly greater than null correlation. As a result, the distribution of Tachigali versicolor is not spatially dependent but instead appears to be random. There does not appear to be evidence of spatial dependence. 
+Both indicate that observed correlation is not significantly greater than null correlation. As a result, the distribution of Tachigali versicolor is not spatially dependent but instead appears to be random. There does not appear to be evidence of spatial dependence for the distribution of this species. 
 
 
 
@@ -207,11 +209,11 @@ xy_dist = dist(BCI_xy)
 max_dist = max(xy_dist) / 2
 
 #plot results
-plot(xy_dist, standleyi_dist, main = "Drypetes standleyi spatial dependence")
+plot(xy_dist, standleyi_dist, xlab = "Spatial Distance", ylab = "Euclidian Distance", main = "Drypetes standleyi spatial dependence")
 abline(lm(standleyi_dist ~ xy_dist), lwd=3, col='red')
 lines(lowess(xy_dist, standleyi_dist), lwd=3, col='pink')
 abline(v = max_dist, col='red', lwd=3, lty=2)
-plot(xy_dist, lasiocalyx_dist, main = "Cordia lasiocalyx spatial dependence")
+plot(xy_dist, lasiocalyx_dist, xlab = "Spatial Distance", ylab = "Euclidian Distance", main = "Cordia lasiocalyx spatial dependence")
 abline(lm(lasiocalyx_dist ~ xy_dist), lwd=3, col='red')
 lines(lowess(xy_dist, lasiocalyx_dist), lwd=3, col='pink')
 abline(v = max_dist, col='red', lwd=3, lty=2)
@@ -221,34 +223,37 @@ Both the theoretical and smoother lines have positive slopes, providing evidence
 
 ```{r}
 #create a single-variable linear model to explain standleyi abundance in terms of Cordia lasiocalyx abundance 
-tree_dat = data.frame(BCI$Drypetes.standleyi, BCI$Cordia.lasiocalyx, BCI, BCI_xy)
-standleyi_1var_lm = gls(Drypetes.standleyi ~ Cordia.lasiocalyx, data = tree_dat)
+standleyi_1var_lm = gls(Drypetes.standleyi ~ Cordia.lasiocalyx, data = BCI)
+x = BCI_xy$x
+y = BCI_xy$y
 
 #use Variogram() to examine spatial dependence of residuals
 par(mfrow=c(1,1))
-plot(Variogram(standleyi_1var_lm, form= ~ x + y), main = "standleyi 1 var")
+plot(Variogram(standleyi_1var_lm, form= ~ x + y), main = "standleyi 1 var fit")
 res = residuals(standleyi_1var_lm)
-plot(dist(tree_dat[, c('x', 'y')]), dist(res), main = "standleyi 1 var residual spatial dependence")
-lines(lowess(dist(tree_dat[, c('x', 'y')]), dist(res)), col='red', lwd=2)
+plot(dist(BCI_xy[, c('x', 'y')]), dist(res), main = "standleyi 1 var spatial dependence of residuals")
+lines(lowess(dist(BCI_xy[, c('x', 'y')]), dist(res)), col='red', lwd=2)
 abline(v = max_dist, col='red', lwd=3, lty=2)
 ```
+
+There is a slight positive slope
 
 Model updates for inclusion of an exponential spatial error term:
 
 ```{r}
 #update model to include exponential error structure to account for spatial dependence
 standleyi_1var_exp = update(standleyi_1var_lm, corr=corExp(form=~x + y))
-plot(Variogram(standleyi_1var_exp, maxDist = max_dist), main = "standleyi 1 var exp")
+plot(Variogram(standleyi_1var_exp, maxDist = max_dist), main = "standleyi 1 var exp fit")
 
 #update plot to examine normalized residuals
-plot(Variogram(standleyi_1var_exp, resType='normalized', maxDist = max_dist), main = "standleyi 1 var exp normalized")
+plot(Variogram(standleyi_1var_exp, resType='normalized', maxDist = max_dist), main = "standleyi 1 var exp normalized fit")
 
 #update model to include nugget 
 standleyi_1var_exp_nug = update(standleyi_1var_exp, corr=corExp(form=~x + y, nugget=T))
-plot(Variogram(standleyi_1var_exp_nug, maxDist = max_dist), main = "standleyi 1 var exp nugget")
+plot(Variogram(standleyi_1var_exp_nug, maxDist = max_dist), main = "standleyi 1 var exp nugget fit")
 
-#update plot with normalized residuals
-plot(Variogram(standleyi_1var_exp_nug, resType='n', maxDist = max_dist), main = "standleyi 1 var exp nugget normalized")
+#update plot to examine normalized residuals with nugget
+plot(Variogram(standleyi_1var_exp_nug, resType='n', maxDist = max_dist), main = "standleyi 1 var exp nugget normalized fit")
 ```
 
 Model updates for inclusion of a rational quadratic spatial error term:
@@ -256,17 +261,17 @@ Model updates for inclusion of a rational quadratic spatial error term:
 ```{r}
 #update model to include rational quadratic error structure to account for spatial dependence
 standleyi_1var_rat = update(standleyi_1var_lm, corr=corRatio(form=~x + y, nugget=F))
-plot(Variogram(standleyi_1var_rat, maxDist = max_dist), main = "standleyi 1 var rational quad")
+plot(Variogram(standleyi_1var_rat, maxDist = max_dist), main = "standleyi 1 var rational quad fit")
 
 #update plot with normalized distribution
-plot(Variogram(standleyi_1var_rat, resType='n', maxDist = max_dist), main = "standleyi 1 var rational quad normalized")
+plot(Variogram(standleyi_1var_rat, resType='n', maxDist = max_dist), main = "standleyi 1 var rational quad normalized fit")
 
 #update model to include nugget
 standleyi_1var_rat_nug = update(standleyi_1var_lm, corr=corRatio(form=~x + y, nugget=T))
-plot(Variogram(standleyi_1var_rat_nug, maxDist = max_dist), main = "standleyi 1 var rational quad nugget")
+plot(Variogram(standleyi_1var_rat_nug, maxDist = max_dist), main = "standleyi 1 var rational quad nugget fit")
 
 #update plot with normalized distribution
-plot(Variogram(standleyi_1var_rat_nug, resType='n', maxDist = max_dist), main = "standleyi 1 var rational quad nugget normalized")
+plot(Variogram(standleyi_1var_rat_nug, resType='n', maxDist = max_dist), main = "standleyi 1 var rational quad nugget normalized fit")
 ```
 
 Of the above models, the plots that appear to best fit the data are the normalized exponential, normalized exponential nugget, normalized rational quadratic, and normalized rational quadratic nugget. 
@@ -285,6 +290,8 @@ The inclusion of both the exponential and rational quadtratic error terms had a 
 ```{r}
 #examine the effect of inclusion of the error terms on overall model fit
 anova(standleyi_1var_lm, standleyi_1var_exp, standleyi_1var_exp_nug, standleyi_1var_rat, standleyi_1var_rat_nug, test=F)
+
+#examine whether inclusion of this term significantly improved model performance
 anova(standleyi_1var_lm, standleyi_1var_rat_nug, test=T)
 ```
 
@@ -304,34 +311,35 @@ sp_ids = c("Cordia.lasiocalyx", "Hirtella.triandra",
            "Xylopia.macrantha")
 
 #create a multi-variable linear model to explain standleyi abundance in terms of the abundances of all species of interest 
-tree_dat = data.frame(BCI$Drypetes.standleyi, BCI$Cordia.lasiocalyx, BCI$Hirtella.triandra, BCI$Picramnia.latifolia, BCI$Quassia.amara, BCI$Tabernaemontana.arborea, BCI$Trattinnickia.aspera, BCI$Xylopia.macrantha, BCI, BCI_xy)
-standleyi_multvar_lm = gls(Drypetes.standleyi ~ Cordia.lasiocalyx + Hirtella.triandra + Picramnia.latifolia + Quassia.amara + Tabernaemontana.arborea + Trattinnickia.aspera + Xylopia.macrantha, data = tree_dat)
+standleyi_multvar_lm = gls(Drypetes.standleyi ~ Cordia.lasiocalyx + Hirtella.triandra + Picramnia.latifolia + Quassia.amara + Tabernaemontana.arborea + Trattinnickia.aspera + Xylopia.macrantha, data = BCI)
 
 #use Variogram() to examine spatial dependence of residuals
 par(mfrow=c(1,1))
-plot(Variogram(standleyi_multvar_lm), main = "standleyi Multvar Mod")
+plot(Variogram(standleyi_multvar_lm), main = "standleyi Multvar Mod fit")
 res2 = residuals(standleyi_multvar_lm)
-plot(dist(tree_dat[, c('x', 'y')]), dist(res2), main = "standleyi multvar residual spatial dependence")
-lines(lowess(dist(tree_dat[, c('x', 'y')]), dist(res2)), col='red', lwd=2)
+plot(dist(BCI_xy[, c('x', 'y')]), dist(res2), main = "standleyi multvar spatial dependence of residuals")
+lines(lowess(dist(BCI_xy[, c('x', 'y')]), dist(res2)), col='red', lwd=2)
 abline(v = max_dist, col='red', lwd=3, lty=2)
 ```
+
+The line here is relatively flat, indicating that there may not be evidence of spatial dependence. 
 
 Model updates for inclusion of an exponential spatial error term:
 
 ```{r}
 #update model to include exponential error structure to account for spatial dependence
 standleyi_multvar_exp = update(standleyi_multvar_lm, corr=corExp(form=~x + y))
-plot(Variogram(standleyi_multvar_exp, maxDist = max_dist), main = "standleyi multvar exp")
+plot(Variogram(standleyi_multvar_exp, maxDist = max_dist), main = "standleyi multvar exp fit")
 
 #update plot to examine normalized residuals
-plot(Variogram(standleyi_multvar_exp, resType='normalized', maxDist = max_dist), main = "standleyi multvar exp normalized")
+plot(Variogram(standleyi_multvar_exp, resType='normalized', maxDist = max_dist), main = "standleyi multvar exp normalized fit")
 
 #update model to include nugget 
 standleyi_multvar_exp_nug = update(standleyi_multvar_exp, corr=corExp(form=~x + y, nugget=T))
-plot(Variogram(standleyi_multvar_exp_nug, maxDist = max_dist), main = "standleyi multvar exp nugget")
+plot(Variogram(standleyi_multvar_exp_nug, maxDist = max_dist), main = "standleyi multvar exp nugget fit")
 
 #update plot with normalized residuals
-plot(Variogram(standleyi_multvar_exp_nug, resType='n', maxDist = max_dist), main = "standleyi multvar exp nugget normalized")
+plot(Variogram(standleyi_multvar_exp_nug, resType='n', maxDist = max_dist), main = "standleyi multvar exp nugget normalized fit")
 ```
 
 Model updates for inclusion of a rational quadratic spatial error term:
@@ -339,17 +347,17 @@ Model updates for inclusion of a rational quadratic spatial error term:
 ```{r}
 #update model to include rational quadratic error structure to account for spatial dependence
 standleyi_multvar_rat = update(standleyi_multvar_lm, corr=corRatio(form=~x + y, nugget=F))
-plot(Variogram(standleyi_multvar_rat, maxDist = max_dist), main = "standleyi multvar rational quad")
+plot(Variogram(standleyi_multvar_rat, maxDist = max_dist), main = "standleyi multvar rational quad fit")
 
 #update plot with normalized distribution
-plot(Variogram(standleyi_multvar_rat, resType='n', maxDist = max_dist), main = "standleyi multvar rational quad normalized")
+plot(Variogram(standleyi_multvar_rat, resType='n', maxDist = max_dist), main = "standleyi multvar rational quad normalized fit")
 
 #update model to include nugget
 standleyi_multvar_rat_nug = update(standleyi_multvar_lm, corr=corRatio(form=~x + y, nugget=T))
-plot(Variogram(standleyi_multvar_rat_nug, maxDist = max_dist), main = "standleyi multivar rational quad nugget")
+plot(Variogram(standleyi_multvar_rat_nug, maxDist = max_dist), main = "standleyi multivar rational quad nugget fit")
 
 #update plot with normalized distribution
-plot(Variogram(standleyi_multvar_rat_nug, resType='n', maxDist = max_dist), main = "standleyi multivar rational quad nugget normalized")
+plot(Variogram(standleyi_multvar_rat_nug, resType='n', maxDist = max_dist), main = "standleyi multivar rational quad nugget normalized fit")
 ```
 
 Of the above models, the plots that appear to best fit the data are the normalized exponential nugget and the normalized rational quadratic nugget.
@@ -363,14 +371,19 @@ coef(standleyi_multvar_rat)
 coef(standleyi_multvar_rat_nug)
 ```
 
-The inclusion of the exponential error term and the rational quadratic error term had the largest effect on the model coefficient for Quassia amara (went from ~4 in the original model to ~1-2 in the other models) and on the intercept.
+The inclusion of the exponential error term and the rational quadratic error term had the largest effect on the model coefficient for Quassia amara (went from ~4 in the original model to ~1-2 in the other models) and on the intercept. However, overall the coefficients did not appear to be changed by more than 3 at the most by the inclusion of the error terms. 
 
 ```{r}
 #examine the effect of inclusion of the error terms on overall model fit
 anova(standleyi_multvar_lm, standleyi_multvar_exp, standleyi_multvar_exp_nug, standleyi_multvar_rat, standleyi_multvar_rat_nug, test=F)
+
+#examine whether inclusion of this term significantly improved model performance
 anova(standleyi_multvar_lm, standleyi_multvar_exp, standleyi_multvar_exp_nug, test=T)
 ```
 
-Based on the AIC values, the standleyi_multvar_exp model and the standleyi_multvar_exp_nug model provide the best fit for the data. Of these two models, the inclusion of the exponential error term in the standleyi_multvar_exp model significantly improved the fit of the model relative to the original model (p=0.0061).
+Based on the AIC values, the standleyi_multvar_exp model and the standleyi_multvar_exp_nug model provide the best fit for the data. Of these two models, the inclusion of the exponential error term in the standleyi_multvar_exp model significantly improved the fit of the model relative to the original model (p=0.0061), whereas the standleyi_multvar_exp_nug model did not (p=0.1994).
 
-For the standleyi 1 variable model, the addition of the rational quadratic error term to the model significantly improved the model's overall fit of the data. For the standleyi multivariable model, the addition of the exponential error term to the model significantly improved the fit. Both models displayed a statistically significant difference relative to the original models when an error term was added. This was possibly the result of Drypetes standleyi abundance being spatially dependent on the abundances of each species included in the single variable and multivariable models, so the addition of an error term to each model in order to account for spatial distribution error would have increased the ability of each model to fit the respective data.
+
+Effect of adding spatial terms between the two models:
+
+For the standleyi 1 variable model, the addition of the rational quadratic error term to the model significantly improved the model's overall fit of the data. For the standleyi multivariable model, the addition of the exponential error term to the model significantly improved the fit. Both models displayed a statistically significant difference relative to the original models when an error term was added. This was possibly the result of Drypetes standleyi abundance being spatially dependent on the abundances of each species included in the single variable and multivariable models, so the addition of an error term to each model in order to account for spatial distribution error would have increased the ability of each model to fit their respective data. 
